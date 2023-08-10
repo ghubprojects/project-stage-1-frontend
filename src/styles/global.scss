@@ -1,0 +1,67 @@
+@import './fonts.scss';
+@import './variables.scss';
+@import './mixins.scss';
+
+::-webkit-scrollbar {
+    border-radius: 0;
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+    border-radius: 4px;
+    background-color: rgba(0, 0, 0, 0.15);
+}
+
+::-webkit-scrollbar-track {
+    border-radius: 0;
+    background-color: rgba(0, 0, 0, 0);
+}
+
+body {
+    font-family: var(--font-family-system), sans-serif;
+    @include font(14);
+    min-height: 100vh;
+    text-rendering: optimizeLegibility;
+    overflow: hidden;
+}
+
+/* Semantic color variables */
+:root {
+    --c-primary: var(--c-green-500);
+    --modal-background: rgba(0, 0, 0, 0.4);
+}
+
+/* Layout variables */
+:root {
+    --header-height: 56px;
+    --sidebar-width: 200px;
+    --content-width: calc(100% - var(--sidebar-width));
+    --table-row-height: 32px;
+
+    --line-height-base: 18px;
+    --line-height-small: 17px;
+
+    --font-size-base: 14px;
+    --font-size-small: 13px;
+    --font-size-extra-small: 12px;
+}
+
+/* Use mixins */
+@import './mixins.scss';
+
+/* Styles for text */
+.heading-1 {
+    font-size: 20px;
+    line-height: 26px;
+    font-weight: var(--font-weight-bold);
+}
+
+/* Reset CSS */
+*,
+*::before,
+*::after {
+    margin: 0;
+    box-sizing: border-box;
+    position: relative;
+}
