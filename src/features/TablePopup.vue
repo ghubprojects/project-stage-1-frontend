@@ -1,7 +1,14 @@
 <script setup>
 import { reactive } from 'vue';
 import { IconClose, IconHelp } from '@/assets/icons';
-import { VButton, VCheckbox, VDateField, VRadioButton, VRadioField, VTextField } from '@/components';
+import {
+    VButton,
+    VCheckbox,
+    VDateField,
+    VRadioButton,
+    VRadioField,
+    VTextField
+} from '@/components';
 
 const props = defineProps({
     employeeData: {
@@ -48,7 +55,7 @@ const handleChangeInputValue = (value, label) => {
                             <VTextField
                                 size="small"
                                 width="medium"
-                                id="employee-code-textfield"
+                                id="employee-code"
                                 :value="localEmployeeData.EmployeeCode"
                                 @textValue="handleChangeInputValue($event, 'EmployeeCode')"
                                 required
@@ -61,8 +68,9 @@ const handleChangeInputValue = (value, label) => {
                             <VTextField
                                 size="small"
                                 width="large"
-                                id="full-name-textfield"
+                                id="full-name"
                                 :value="localEmployeeData.FullName"
+                                title="title"
                                 @textValue="handleChangeInputValue($event, 'FullName')"
                                 required
                                 :errMsgs="{ isEmpty: 'Tên không được để trống' }"
@@ -74,7 +82,7 @@ const handleChangeInputValue = (value, label) => {
                         <VTextField
                             size="small"
                             width="full"
-                            id="department-name-textfield"
+                            id="department-name"
                             required
                             :value="localEmployeeData.DepartmentName"
                             @textValue="handleChangeInputValue($event, 'DepartmentName')"
@@ -89,7 +97,7 @@ const handleChangeInputValue = (value, label) => {
                         <VTextField
                             size="small"
                             width="full"
-                            id="position-name-textfield"
+                            id="position-name"
                             :value="localEmployeeData.PositionName"
                             @textValue="handleChangeInputValue($event, 'PositionName')"
                         >
@@ -102,13 +110,13 @@ const handleChangeInputValue = (value, label) => {
                         <div style="display: flex; justify-content: space-between">
                             <VDateField
                                 size="small"
-                                id="date-of-birth-datefield"
+                                id="date-of-birth"
                                 :value="localEmployeeData.DateOfBirth"
                             >
                                 <template #label>Ngày sinh</template>
                             </VDateField>
 
-                            <VRadioField id="gender-radiofield" :value="localEmployeeData.Gender">
+                            <VRadioField id="gender" :value="localEmployeeData.Gender">
                                 <template #label>Giới tính</template>
                                 <template #input>
                                     <VRadioButton
@@ -143,7 +151,7 @@ const handleChangeInputValue = (value, label) => {
                             <VTextField
                                 size="small"
                                 width="large"
-                                id="identity-number-textfield"
+                                id="identity-number"
                                 title="Số chứng minh nhân dân"
                                 :value="localEmployeeData.IdentityNumber"
                                 @textValue="handleChangeInputValue($event, 'IdentityNumber')"
@@ -151,7 +159,7 @@ const handleChangeInputValue = (value, label) => {
                                 <template #label>Số CMND</template>
                             </VTextField>
 
-                            <VDateField size="small" id="identity-date-datefield">
+                            <VDateField size="small" id="identity-date">
                                 <template #label>Ngày cấp</template>
                             </VDateField>
                         </div>
@@ -159,7 +167,7 @@ const handleChangeInputValue = (value, label) => {
                         <VTextField
                             size="small"
                             width="full"
-                            id="identity-department-textfield"
+                            id="identity-department"
                             :value="localEmployeeData.IdentityPlace"
                             @textValue="handleChangeInputValue($event, 'IdentityPlace')"
                         >
@@ -171,8 +179,8 @@ const handleChangeInputValue = (value, label) => {
                 <VTextField
                     size="small"
                     width="full"
-                    id="address-textfield"
-                    style="margin: 24px 0 14px"
+                    id="address"
+                    style="margin-top: 24px"
                     :value="localEmployeeData.Address"
                     @textValue="handleChangeInputValue($event, 'Address')"
                 >
@@ -184,21 +192,21 @@ const handleChangeInputValue = (value, label) => {
                         <VTextField
                             size="small"
                             width="large"
-                            id="phone-textfield"
+                            id="phone"
                             :value="localEmployeeData.PhoneNumber"
                             @textValue="handleChangeInputValue($event, 'PhoneNumber')"
                         >
                             <template #label>ĐT di động</template>
                         </VTextField>
 
-                        <VTextField size="small" width="large" id="fax-textfield">
+                        <VTextField size="small" width="large" id="fax">
                             <template #label>ĐT cố định</template>
                         </VTextField>
 
                         <VTextField
                             size="small"
                             width="large"
-                            id="email-textfield"
+                            id="email"
                             :value="localEmployeeData.Email"
                             @textValue="handleChangeInputValue($event, 'Email')"
                         >
@@ -207,15 +215,15 @@ const handleChangeInputValue = (value, label) => {
                     </div>
 
                     <div class="second-line">
-                        <VTextField size="small" width="large" id="bank-account-textfield">
+                        <VTextField size="small" width="large" id="bank-account">
                             <template #label>Tài khoản ngân hàng</template>
                         </VTextField>
 
-                        <VTextField size="small" width="large" id="bank-name-textfield">
+                        <VTextField size="small" width="large" id="bank-name">
                             <template #label>Tên ngân hàng</template>
                         </VTextField>
 
-                        <VTextField size="small" width="large" id="bank-branch-textfield">
+                        <VTextField size="small" width="large" id="bank-branch">
                             <template #label>Chi nhánh</template>
                         </VTextField>
                     </div>
@@ -224,30 +232,18 @@ const handleChangeInputValue = (value, label) => {
 
             <div class="popup-footer">
                 <div class="left-group">
-                    <VButton
-                        size="medium"
-                        type="outline"
-                        text="Hủy"
-                        class="cancel-btn"
-                        @click="handleCancelPopup()"
-                    />
+                    <VButton type="outline" class="cancel-btn" @click="handleCancelPopup">
+                        Hủy
+                    </VButton>
                 </div>
 
                 <div class="right-group">
-                    <VButton
-                        size="medium"
-                        type="outline"
-                        text="Cất"
-                        class="add-btn"
-                        onclick="validateEmptyTextField()"
-                    />
-                    <VButton
-                        size="medium"
-                        type="primary"
-                        text="Cất và thêm"
-                        class="add-more-btn"
-                        onclick="validateEmptyTextField()"
-                    />
+                    <VButton type="outline" class="add-btn" onclick="validateEmptyTextField">
+                        Cất
+                    </VButton>
+                    <VButton type="primary" class="add-more-btn" onclick="validateEmptyTextField">
+                        Cất và Thêm</VButton
+                    >
                 </div>
             </div>
         </div>
@@ -281,7 +277,7 @@ const handleChangeInputValue = (value, label) => {
 /* Styles for popup-header */
 .popup-header {
     margin-top: 24px;
-    padding: 0 24px;
+    padding: 0 32px;
 
     display: flex;
     justify-content: space-between;
@@ -308,7 +304,8 @@ const handleChangeInputValue = (value, label) => {
 .popup-content {
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    gap: 16px;
+    padding: 24px 32px 32px;
     .group-1 {
         display: flex;
         justify-content: space-between;
@@ -317,13 +314,13 @@ const handleChangeInputValue = (value, label) => {
         .right-group {
             display: flex;
             flex-direction: column;
-            gap: 14px;
+            gap: 16px;
         }
     }
     .group-2 {
         display: flex;
         flex-direction: column;
-        gap: 14px;
+        gap: 16px;
         .first-line,
         .second-line {
             display: flex;
@@ -336,14 +333,14 @@ const handleChangeInputValue = (value, label) => {
 .popup-footer {
     display: flex;
     justify-content: space-between;
-    padding: 16px 24px;
+    padding: 20px 32px;
     border-radius: 0 0 4px 4px;
 
-    background-color: rgb(var(--c-gray-100));
+    background-color: rgb(var(--c-gray-200));
     border-top: 1px solid rgb(var(--c-gray-300));
     .right-group {
         display: flex;
-        gap: 8px;
+        gap: 12px;
     }
 }
 </style>

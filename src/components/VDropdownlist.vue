@@ -1,5 +1,71 @@
+<script setup>
+import { ref, computed, useSlots } from 'vue';
+import { IconArrowDown } from '@/assets/icons';
+
+const props = defineProps({
+    size: {
+        type: String,
+        default: 'medium',
+        validator(val) {
+            return ['large', 'medium', 'small'].includes(val);
+        }
+    },
+    width: {
+        type: String,
+        default: 'medium',
+        validator(val) {
+            return ['full', 'extra-large', 'large', 'medium', 'small', 'extra-small'].includes(val);
+        }
+    },
+    id: {
+        type: String,
+        required: true
+    },
+    placeholder: {
+        type: String
+    },
+    disabled: {
+        type: Boolean,
+        default: false
+    },
+    required: {
+        type: Boolean,
+        default: false
+    },
+    options: {
+        type: Array,
+        required: true
+    }
+});
+
+const isOpen = ref(false);
+const selectedValue = ref(props.options[0]);
+
+/**
+ * The variable "hasLabel" checks whether a Textfield contains the label or not.
+ * If it does, it adds the class 'has-label' to the label tag.
+ */
+const slots = useSlots();
+const hasLabel = slots.label;
+
+/**
+ * Based on the size and width props passed in,
+ * assign classes to style each corresponding size and width of input.
+ */
+const inputClass = computed(() => [
+    `input-${props.size}`,
+    `input-width-${props.width}`,
+    'input-has-icon'
+]);
+
+const handleOptionClick = (option) => {
+    selectedValue.value = option;
+    isOpen.value = false;
+};
+</script>
+
 <template>
-    <div class="dropdown">
+    <div class="dropdown-list">
         <div class="label-group" v-if="hasLabel">
             <label :for="id">
                 <slot name="label"></slot>
@@ -17,7 +83,7 @@
                 v-model="selectedValue"
                 readonly
             />
-            <IconArrowDown class="arrow-down-icon" />
+            <IconArrowDown class="icon" />
         </div>
 
         <div v-if="isOpen" class="dropdown-menu">
@@ -34,150 +100,126 @@
     </div>
 </template>
 
-<script>
-import { ref, computed } from 'vue';
-import cx from 'classnames';
-import { IconArrowDown } from '@/assets/icons';
-export default {
-    name: 'BaseDropdownlist',
-    props: {
-        size: {
-            type: String,
-            default: 'medium',
-            validator(value) {
-                return ['large', 'medium', 'small'].includes(value);
-            }
-        },
-        width: {
-            type: String,
-            default: 'medium',
-            validator(value) {
-                return ['full', 'extra-large', 'large', 'medium', 'small', 'extra-small'].includes(
-                    value
-                );
-            }
-        },
-        id: {
-            type: String,
-            required: true
-        },
-        placeholder: {
-            type: String
-        },
-        disabled: {
-            type: Boolean,
-            default: false
-        },
-        required: {
-            type: Boolean,
-            default: false
-        },
-        options: {
-            type: Array,
-            required: true
-        }
-    },
-    setup(props, context) {
-        const isOpen = ref(false);
-        const selectedValue = ref(props.options[0]);
-
-        /**
-         * The variable "hasLabel" checks whether a Textfield contains the label or not.
-         * If it does, it adds the class 'has-label' to the label tag.
-         */
-        const hasLabel = context.slots.label;
-
-        /**
-         * Based on the size and width props passed in,
-         * assign classes to style each corresponding size and width of input.
-         */
-        const inputClass = computed(() => cx(`input-size-${props.size}`, `input-width-${props.width}`));
-
-        const handleOptionClick = (option) => {
-            selectedValue.value = option;
-            isOpen.value = false;
-        };
-
-        return { inputClass, isOpen, selectedValue, handleOptionClick, hasLabel };
-    },
-    components: { IconArrowDown }
-};
-</script>
-
 <style lang="scss" scoped>
 @import '@/styles/mixins.scss';
-label,
-input,
-input::placeholder {
-    @include font('base');
+
+$--label-color: rgb(var(--c-gray-900));
+$--label-required-mark-color: rgb(var(--c-red-500));
+
+$--input-small-height: 32px;
+$--input-small-padding-y: 6px;
+
+$--input-medium-height: 36px;
+$--input-medium-padding-y: 8px;
+
+$--input-large-height: 40px;
+$--input-large-padding-y: 10px;
+
+$--input-padding-x: 12px;
+$--input-border-color: rgb(var(--c-gray-300));
+$--input-placeholder-color: rgb(var(--c-gray-500));
+$--input-hover-bg-color: rgb(var(--c-gray-100));
+$--input-error-border-color: rgb(var(--c-red-500));
+
+$--error-message-color: rgb(var(--c-white));
+$--error-message-bg-color: rgb(var(--c-gray-900));
+
+.dropdown-list {
+    cursor: pointer;
 }
 
-label {
-    font-weight: var(--font-weight-medium);
+.input-small {
+    height: $--input-small-height;
+    padding: $--input-small-padding-y $--input-padding-x;
+}
+.input-medium {
+    height: $--input-medium-height;
+    padding: $--input-medium-padding-y $--input-padding-x;
+}
+.input-large {
+    height: $--input-large-height;
+    padding: $--input-large-padding-y $--input-padding-x;
 }
 
 .label-group {
-    @apply flex mb-2;
+    margin-bottom: 8px;
+    label {
+        @include font(14, 500);
+        color: $--label-color;
+    }
     .required-mark {
-        color: var(--red-500);
-        line-height: 18px;
+        color: $--label-required-mark-color;
     }
 }
 
 .input-group {
     input {
-        @apply px-3 py-2 rounded cursor-pointer;
-        @include font('small');
-        border: 1px solid var(--gray-300);
+        @include font(13);
+        font-family: var(--font-family-system);
+
+        border-radius: 4px;
+        border: 1px solid $--input-border-color;
+        outline: none;
+
         &::placeholder {
-            color: var(--gray-500);
+            @include font(13);
+            color: $--input-placeholder-color;
         }
-        &:focus {
-            border-color: var(--primary);
-            outline: none;
+        &.input-error {
+            border-color: $--input-error-border-color !important;
+            &:hover,
+            &:focus {
+                border-color: $--input-error-border-color !important;
+            }
+        }
+
+        &:not(.input-error):hover {
+            background-color: $--input-hover-bg-color;
+        }
+
+        &:not(.input-error):focus {
+            border-color: rgb(var(--c-primary));
+        }
+
+        &.input-has-icon {
+            padding-right: 28px;
         }
     }
-    &:hover input {
-        background-color: var(--gray-200);
-    }
-    .arrow-down-icon {
-        @apply absolute top-1/2 right-2 cursor-pointer;
+
+    .icon {
+        position: absolute;
+        top: 50%;
+        right: 8px;
+
         @include size(14px);
         transform: translateY(-50%) scale(calc(16 / 14));
+        cursor: pointer;
     }
 }
-
 .dropdown-menu {
-    @apply absolute bottom-8 w-full p-2 rounded flex flex-col-reverse;
+    position: absolute;
+    bottom: 32px;
+    padding: 8px;
+
+    display: flex;
+    flex-direction: column-reverse;
+    border-radius: 4px;
+    width: 100%;
+
     max-height: 200px;
-    background-color: var(--white);
-    border: 1px solid var(--gray-300);
+    background-color: rgb(var(--c-white));
+    border: 1px solid rgb(var(--c-gray-300));
     .dropdown-item {
-        @apply p-2 rounded cursor-pointer;
+        padding: 8px;
+        border-radius: 4px;
         &:hover {
-            background-color: var(--lightgreen-100);
+            background-color: rgb(var(--c-light-green-100));
         }
     }
 }
 
 .selected {
-    background-color: var(--lightgreen-100);
-}
-
-/* Change the border-color of textfield input if it's get error */
-.input-group > .input-error {
-    border-color: var(--red-500) !important;
-}
-
-/* === Size of input ===*/
-.input-size-large {
-    height: 40px;
-}
-.input-size-medium {
-    height: 36px;
-}
-.input-size-small {
-    height: 32px;
+    background-color: rgb(var(--c-light-green-100));
 }
 
 /* === Width of input === */

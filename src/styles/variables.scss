@@ -151,6 +151,9 @@
 :root {
     --font-family-system: Notosans, sans-serif;
 
+    --font-size-12: 12px;
+    --line-height-12: 16px;
+
     --font-size-13: 13px;
     --line-height-13: 17px;
 
@@ -169,7 +172,7 @@
 
 /* Semantic color variables */
 :root {
-    --c-primary: rgb(var(--c-green-500));
+    --c-primary: var(--c-green-500);
     --modal-background: rgba(0, 0, 0, 0.4);
 }
 

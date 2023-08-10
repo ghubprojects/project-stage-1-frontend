@@ -1,5 +1,4 @@
 <script setup>
-import cx from 'classnames';
 import { onMounted, onUnmounted, ref } from 'vue';
 
 import { IconExpandMore, IconRefresh, IconSearch } from '@/assets/icons';
@@ -9,8 +8,8 @@ import TablePopup from './TablePopup.vue';
 import * as employeeDataService from '@/services/employeeDataService';
 import state from '@/store';
 import * as dataHandler from '@/utils/dataHandler';
-import { tableColumns } from '@/utils/tableColumns';
 import { employeeList } from '@/utils/employeeData';
+import { tableColumns } from '@/utils/tableColumns';
 
 defineProps({
     showPopup: {
@@ -32,8 +31,8 @@ const getAllEmployees = async () => {
     try {
         // employeesList.value = await employeeDataService.readAll();
         employeesList.value = employeeList;
-    } catch (error) {
-        console.log(error);
+    } catch (err) {
+        console.log(err);
     }
 };
 
@@ -43,8 +42,8 @@ const getAllEmployees = async () => {
 const getEmployeeById = async (id) => {
     try {
         employeeData.value = await employeeDataService.readById(id);
-    } catch (error) {
-        console.log(error);
+    } catch (err) {
+        console.log(err);
     }
 };
 
@@ -123,6 +122,7 @@ onUnmounted(() => {
                 width="extra-large"
                 placeholder="Tìm theo mã, tên nhân viên"
                 id="search-employee"
+                class="search-employee-textfield"
             >
                 <template #icon><IconSearch class="search-icon" /></template>
             </VTextField>
@@ -137,18 +137,18 @@ onUnmounted(() => {
                             v-for="(column, index) in tableColumns"
                             :key="index"
                             :title="column.title"
-                            :class="
-                                cx(`th-${column.name}`, `cell-${column.width}`, {
-                                    fixed: fixedColumns.includes(column.name)
-                                })
-                            "
+                            :class="[
+                                `th-${column.name}`,
+                                `cell-${column.width}`,
+                                { fixed: fixedColumns.includes(column.name) }
+                            ]"
                         >
                             <span v-if="column.header">
                                 {{ column.header }}
                             </span>
                             <component v-else :is="column.content" id="all-employee-check" />
                         </th>
-                        <th :class="cx('th-options', 'cell-small')"><span>chức năng</span></th>
+                        <th :class="['th-options', 'cell-small']"><span>chức năng</span></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -160,11 +160,11 @@ onUnmounted(() => {
                         <td
                             v-for="(column, index) in tableColumns"
                             :key="index"
-                            :class="
-                                cx(`td-${column.name}`, `cell-${column.width}`, {
-                                    fixed: fixedColumns.includes(column.name)
-                                })
-                            "
+                            :class="[
+                                `td-${column.name}`,
+                                `cell-${column.width}`,
+                                { fixed: fixedColumns.includes(column.name) }
+                            ]"
                         >
                             <span v-if="column.property">
                                 {{ formatDataCell(employee, column.property) }}
@@ -176,12 +176,14 @@ onUnmounted(() => {
                             <span class="update-button"> Sửa </span>
                             <div class="dropdown">
                                 <IconExpandMore
-                                    :class="cx(`expand-more-icon`)"
+                                    class="expand-more-icon"
                                     @click="handleClickExpandIcon($event, index)"
                                 />
                                 <div v-if="false" class="dropdown-menu">
                                     <div class="dropdown-menu-item">Nhân bản</div>
-                                    <div class="dropdown-menu-item" @click="showDialog = true">Xóa</div>
+                                    <div class="dropdown-menu-item" @click="showDialog = true">
+                                        Xóa
+                                    </div>
                                     <div class="dropdown-menu-item">Ngừng sử dụng</div>
                                 </div>
                             </div>
@@ -246,12 +248,24 @@ onUnmounted(() => {
 
     padding: 12px 20px 12px 16px;
     background-color: rgb(var(--c-white));
-    .search-icon {
-        @include size(20px);
-    }
+
     .refresh-button {
         @include size(24px);
         cursor: pointer;
+    }
+}
+
+input.search-employee-textfield {
+    @include font(13);
+    height: 60px;
+    font-style: italic !important;
+
+    &::placeholder {
+        @include font(13);
+        font-style: italic !important;
+    }
+    & + i > .search-icon {
+        @include size(20px);
     }
 }
 
@@ -450,7 +464,7 @@ td {
     align-items: center;
 
     height: 56px;
-    padding: 8px 16px;
+    padding: 8px;
     background-color: rgb(var(--c-white));
 }
 

@@ -38,6 +38,8 @@ const isDisabled = computed(() => props.disabled);
 </template>
 
 <style scoped lang="scss">
+@import '@/styles/mixins.scss';
+
 $--button-min-width: 80px;
 $--button-padding-x: 16px;
 
@@ -51,17 +53,16 @@ $--button-large-height: 40px;
 $--button-large-padding-y: 11px;
 
 $--button-primary-color: rgb(var(--c-white));
-$--button-primary-bg-color: var(--c-primary);
+$--button-primary-bg-color: rgb(var(--c-primary));
 $--button-primary-hover-bg-color: rgb(var(--c-light-green-500));
 $--button-primary-pressed-bg-color: rgb(var(--c-green-600));
 
 $--button-outline-color: rgb(var(--c-gray-900));
 $--button-outline-bg-color: rgb(var(--c-white));
-$--button-outline-border-color: rgb(230, 230, 230);
+$--button-outline-border-color: rgb(var(--c-gray-400));
 $--button-outline-hover-bg-color: rgb(var(--c-gray-100));
 $--button-outline-pressed-bg-color: rgb(var(--c-gray-200));
 
-@import '@/styles/mixins.scss';
 .button-small {
     height: $--button-small-height;
     padding: $--button-small-padding-y $--button-padding-x;

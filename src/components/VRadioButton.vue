@@ -1,3 +1,33 @@
+<script setup>
+defineProps({
+    id: {
+        type: String,
+        required: true
+    },
+    name: {
+        type: String,
+        required: true
+    },
+    value: {
+        type: Boolean,
+        required: true,
+        default: false
+    },
+    disabled: {
+        type: Boolean,
+        default: false
+    }
+});
+
+const emit = defineEmits(['update:radioValue']);
+
+const handleChange = (event) => {
+    if (event.target.checked) {
+        emit('update:radioValue', event.target.value);
+    }
+};
+</script>
+
 <template>
     <div class="radio-button">
         <div class="radio-input">
@@ -16,56 +46,15 @@
     </div>
 </template>
 
-<script>
-import { ref } from 'vue';
-
-export default {
-    name: 'BaseRadioButton',
-    emits: ['update:radioValue'],
-    props: {
-        id: {
-            type: String,
-            required: true
-        },
-        name: {
-            type: String,
-            required: true
-        },
-        value: {
-            type: Boolean,
-            required: true,
-            default: false
-        },
-        disabled: {
-            type: Boolean,
-            default: false
-        }
-    },
-    setup(props, { emit }) {
-        const radioValue = ref(props.value);
-
-        const handleChange = (event) => {
-            if (event.target.checked) {
-                emit('update:radioValue', event.target.value);
-            }
-        };
-
-        return {
-            radioValue,
-            handleChange
-        };
-    }
-};
-</script>
-
 <style lang="scss" scoped>
 @import '@/styles/mixins.scss';
 .radio-button {
-    @apply flex items-center;
+    display: flex;
+    align-items: center;
 }
 
 .radio-input {
-    @apply flex;
+    display: flex;
 }
 
 /* Styles for default input */
@@ -85,13 +74,13 @@ export default {
     @include centerAbsolute('both');
 
     border-radius: 999px;
-    border: 1px solid var(--gray-400);
-    background-color: var(--white);
+    border: 1px solid rgb(var(--c-gray-400));
+    background-color: rgb(var(--c-white));
 }
 
 /* When input is checked, change background-color of checkmark*/
 .radio-input > input[type='radio']:checked + .checkmark {
-    border-color: var(--primary);
+    border-color: rgb(var(--c-primary));
 }
 
 /* When input is checked, display check icon */
@@ -101,12 +90,15 @@ export default {
 
     content: '';
     display: block;
-    background: var(--primary);
+    background: rgb(var(--c-primary));
     border-radius: 999px;
 }
 
 /* Style for label */
 .radio-button label {
-    @apply inline-block pl-2 select-none cursor-pointer;
+    display: inline-block;
+    padding-left: 8px;
+    user-select: none;
+    cursor: pointer;
 }
 </style>

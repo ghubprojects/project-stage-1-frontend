@@ -21,9 +21,10 @@
 }
 
 /* font mixins */
-@mixin font($value) {
-    font-size: var(--font-size-#{$value});
-    line-height: var(--line-height-#{$value});
+@mixin font($size: 14, $weight: 400) {
+    font-size: var(--font-size-#{$size});
+    line-height: var(--line-height-#{$size});
+    font-weight: $weight;
 }
 
 /* Setting the width and height of an element. */
@@ -33,7 +34,7 @@
 }
 
 /* Aligning center an element. */
-@mixin centerAbsolute($pos) {
+@mixin centerAbsolute($pos: 'both') {
     position: absolute;
     @if $pos == 'both' {
         top: 50%;

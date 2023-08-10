@@ -1,14 +1,3 @@
-<template>
-    <div>
-        <input type="text" v-model="filterQuery" @input="handleInput" />
-        <ul>
-            <li v-for="option in filteredOptions" :key="option.value" @click="handleOptionClick(option)">
-                {{ option.label }}
-            </li>
-        </ul>
-    </div>
-</template>
-
 <script setup>
 import { ref, watch, computed } from 'vue';
 
@@ -47,3 +36,18 @@ const handleOptionClick = (option) => {
     filterQuery.value = '';
 };
 </script>
+
+<template>
+    <div>
+        <input type="text" v-model="filterQuery" @input="handleInput" />
+        <ul>
+            <li
+                v-for="option in filteredOptions"
+                :key="option.value"
+                @click="handleOptionClick(option)"
+            >
+                {{ option.label }}
+            </li>
+        </ul>
+    </div>
+</template>

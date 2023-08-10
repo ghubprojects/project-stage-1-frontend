@@ -1,7 +1,98 @@
+<script setup>
+import { ref, computed, useSlots, watch } from 'vue';
+
+const props = defineProps({
+    size: {
+        type: String,
+        default: 'medium',
+        validator(val) {
+            return ['large', 'medium', 'small'].includes(val);
+        }
+    },
+    width: {
+        type: String,
+        default: 'medium',
+        validator(val) {
+            return ['extra-large', 'large', 'medium', 'small', 'extra-small'].includes(val);
+        }
+    },
+    id: {
+        type: String,
+        required: true
+    },
+    placeholder: {
+        type: String
+    },
+    disabled: {
+        type: Boolean,
+        default: false
+    },
+    required: {
+        type: Boolean,
+        default: false
+    },
+    pattern: {
+        type: RegExp
+    }
+});
+
+// Show label if exists
+const slots = useSlots();
+const hasLabel = slots.label;
+
+// Biến lưu trữ giá trị input.
+const inputValue = ref(props.value);
+
+// Check empty input
+const isEmpty = computed(() => {
+    return props.required ? !inputValue.value || !inputValue.value.trim() : false;
+});
+
+// Check invalid input
+const isInvalid = computed(() => {
+    return props.pattern && !props.pattern.test(inputValue.value);
+});
+
+/**
+ * Based on the size and width props passed in,
+ * assign classes to style each corresponding size and width of input.
+ */
+const showErrorInput = ref(false);
+const inputClass = computed(() => [
+    `input-${props.size}`,
+    `input-width-${props.width}`,
+    { 'input-error': showErrorInput.value && (isEmpty.value || isInvalid.value) }
+]);
+
+const errorMessage = computed(() => {
+    if (isEmpty.value) {
+        return props.errMsgs.isEmpty;
+    } else if (isInvalid.value) {
+        return props.errMsgs.isInvalid;
+    } else {
+        return '';
+    }
+});
+
+/**
+ * Khi thay đổi giá trị input,
+ * hiển thị những input bị lỗi (viền đỏ) nếu input trống hoặc không hợp lệ.
+ */
+const handleChange = () => {
+    showErrorInput.value = true;
+};
+
+/**
+ * Khi isEmpty hoặc isInvalid thay đổi, cập nhật lại giá trị showErrorMessage tương ứng.
+ */
+const showErrorMessage = ref(false);
+watch([isEmpty, isInvalid], () => (showErrorMessage.value = isEmpty.value || isInvalid.value));
+</script>
+
 <template>
     <div class="datefield">
         <div class="label-group" v-if="hasLabel">
-            <label :for="id">
+            <label :for="id" :title="title">
                 <slot name="label"></slot>
             </label>
             <span class="required-mark" v-if="required">&nbsp;*</span>
@@ -14,166 +105,115 @@
                 :disabled="disabled"
                 :class="inputClass"
                 v-model="inputValue"
+                @change="handleChange"
             />
-            <i class="icon">
-                <slot name="icon"></slot>
-            </i>
         </div>
-        <span class="error-message" v-if="isInvalid">{{ errorMessage }}</span>
+        <span
+            class="error-message"
+            v-if="showErrorMessage"
+            @mouseenter="showErrorMessage = true"
+            @mouseleave="showErrorMessage = false"
+        >
+            {{ errorMessage }}
+        </span>
     </div>
 </template>
-
-<script>
-import { ref, computed } from 'vue';
-import cx from 'classnames';
-export default {
-    name: 'VDatefield',
-    props: {
-        size: {
-            type: String,
-            default: 'medium',
-            validator(value) {
-                return ['large', 'medium', 'small'].includes(value);
-            }
-        },
-        width: {
-            type: String,
-            default: 'medium',
-            validator(value) {
-                return ['extra-large', 'large', 'medium', 'small', 'extra-small'].includes(value);
-            }
-        },
-        id: {
-            type: String,
-            required: true
-        },
-        placeholder: {
-            type: String
-        },
-        disabled: {
-            type: Boolean,
-            default: false
-        },
-        required: {
-            type: Boolean,
-            default: false
-        },
-        pattern: {
-            type: RegExp
-        }
-    },
-    setup(props, context) {
-        /**
-         * The variable "hasLabel, hasIcon" checks whether a datefield contains a label, a icon or not.
-         * If it does, it adds the class 'has-label' to the label tag, 'has-icon' to the input tag.
-         */
-        const hasLabel = context.slots.label;
-
-        /**
-         * Based on the size and width props passed in,
-         * assign classes to style each corresponding size and width of input.
-         */
-        const inputClass = computed(() =>
-            cx(`input-size-${props.size}`, `input-width-${props.width}`, {
-                'input-error': isInvalid.value
-            })
-        );
-
-        const inputValue = ref('');
-
-        const isInvalid = computed(() => {
-            return (
-                (props.required && !inputValue.value.trim()) ||
-                (props.pattern && !props.pattern.test(inputValue.value))
-            );
-        });
-        const errorMessage = computed(() => {
-            if (props.required && !inputValue.value.trim()) {
-                return 'This field is required';
-            } else if (props.pattern && !props.pattern.test(inputValue.value)) {
-                return 'Please enter a valid input';
-            } else {
-                return '';
-            }
-        });
-        return {
-            hasLabel,
-            inputValue,
-            isInvalid,
-            errorMessage,
-            inputClass
-        };
-    }
-};
-</script>
 
 <style lang="scss" scoped>
 @import '@/styles/mixins.scss';
 
-label,
-input,
-input::placeholder {
-    @include font('base');
-}
+$--label-color: rgb(var(--c-gray-900));
+$--label-required-mark-color: rgb(var(--c-red-500));
 
-label {
-    font-weight: var(--font-weight-medium);
+$--input-small-height: 32px;
+$--input-small-padding-y: 6px;
+
+$--input-medium-height: 36px;
+$--input-medium-padding-y: 8px;
+
+$--input-large-height: 40px;
+$--input-large-padding-y: 10px;
+
+$--input-padding-x: 12px;
+$--input-border-color: rgb(var(--c-gray-300));
+$--input-placeholder-color: rgb(var(--c-gray-500));
+$--input-hover-bg-color: rgb(var(--c-gray-100));
+$--input-error-border-color: rgb(var(--c-red-500));
+
+$--error-message-color: rgb(var(--c-white));
+$--error-message-bg-color: rgb(var(--c-gray-900));
+
+.input-small {
+    height: $--input-small-height;
+    padding: $--input-small-padding-y $--input-padding-x;
+}
+.input-medium {
+    height: $--input-medium-height;
+    padding: $--input-medium-padding-y $--input-padding-x;
+}
+.input-large {
+    height: $--input-large-height;
+    padding: $--input-large-padding-y $--input-padding-x;
 }
 
 .label-group {
-    @apply flex mb-2;
+    margin-bottom: 8px;
+    label {
+        @include font(14, 500);
+        color: $--label-color;
+    }
     .required-mark {
-        color: var(--red-500);
-        line-height: 18px;
+        color: $--label-required-mark-color;
     }
 }
 
 .input-group {
     input {
-        @apply px-3 py-2 rounded;
-        border: 1px solid var(--gray-300);
-        &::placeholder {
-            color: var(--gray-500);
-        }
-        &:focus {
-            border-color: var(--primary);
-            outline: none;
-        }
-    }
-    &:hover input {
-        background-color: var(--gray-200);
-    }
-    input.has-icon {
-        padding-right: 32px;
-    }
-    .icon {
-        @apply absolute top-1/2 right-2;
-        transform: translateY(-50%);
-    }
-}
+        @include font(14);
+        font-family: var(--font-family-system);
 
-/* Change the border-color of textfield input if it's get error */
-.input-group > .input-error {
-    border-color: var(--red-500) !important;
+        border-radius: 4px;
+        border: 1px solid $--input-border-color;
+        outline: none;
+
+        &::placeholder {
+            @include font(14);
+            color: $--input-placeholder-color;
+        }
+        &.input-error {
+            border-color: $--input-error-border-color !important;
+            &:hover,
+            &:focus {
+                border-color: $--input-error-border-color !important;
+            }
+        }
+
+        &:not(.input-error):hover {
+            background-color: $--input-hover-bg-color;
+        }
+
+        &:not(.input-error):focus {
+            border-color: rgb(var(--c-primary));
+        }
+    }
 }
 
 /* Style error message */
-.input-group:has(.input-error) + .error-message {
-    display: flex;
-    margin-top: 8px;
-    font-size: var(--font-size-extra-small);
-    color: var(--red-500);
-}
+.error-message {
+    position: absolute;
+    left: 16px;
+    bottom: -16px;
+    display: none;
 
-/* === Size of input ===*/
-.input-size-large {
-    height: 40px;
-}
-.input-size-medium {
-    height: 36px;
-}
-.input-size-small {
-    height: 32px;
+    @include font(12);
+    padding: 4px;
+    border-radius: 2px;
+    color: $--error-message-color;
+    background-color: $--error-message-bg-color;
+
+    .input-group:has(.input-error:hover) + & {
+        display: flex;
+    }
 }
 
 /* === Width of input === */

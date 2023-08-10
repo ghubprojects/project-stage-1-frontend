@@ -1,18 +1,3 @@
-<template>
-    <div class="radiofield">
-        <div class="label-group" v-if="hasLabel">
-            <label :for="id">
-                <slot name="label"></slot>
-            </label>
-            <span class="required-mark" v-if="required">&nbsp;*</span>
-        </div>
-        <div class="input-group">
-            <slot name="input"></slot>
-        </div>
-        <span class="error-message" v-if="isInvalid">{{ errorMessage }}</span>
-    </div>
-</template>
-
 <script setup>
 import { ref, computed, useSlots } from 'vue';
 const props = defineProps({
@@ -30,90 +15,145 @@ const props = defineProps({
     }
 });
 
-const slots = useSlots();
-
 /**
  * The variable "hasLabel, hasIcon" checks whether a radiofield contains a label, a icon or not.
  * If it does, it adds the class 'has-label' to the label tag, 'has-icon' to the input tag.
  */
+const slots = useSlots();
 const hasLabel = slots.label;
-/**
- * Based on the size and width props passed in,
- * assign classes to style each corresponding size and width of input.
- */
+
+// Biến lưu trữ giá trị input.
 const inputValue = ref('');
-const isInvalid = computed(() => {
-    return (
-        (props.required && !inputValue.value.trim()) ||
-        (props.pattern && !props.pattern.test(inputValue.value))
-    );
+
+// Check empty input
+const isEmpty = computed(() => {
+    return props.required ? !inputValue.value || !inputValue.value.trim() : false;
 });
+
+// Check invalid input
+const isInvalid = computed(() => {
+    return props.pattern && !props.pattern.test(inputValue.value);
+});
+
 const errorMessage = computed(() => {
-    if (props.required && !inputValue.value.trim()) {
-        return 'This field is required';
-    } else if (props.pattern && !props.pattern.test(inputValue.value)) {
-        return 'Please enter a valid input';
+    if (isEmpty.value) {
+        return props.errMsgs.isEmpty;
+    } else if (isInvalid.value) {
+        return props.errMsgs.isInvalid;
     } else {
         return '';
     }
 });
 </script>
 
+<template>
+    <div class="radiofield">
+        <div class="label-group" v-if="hasLabel">
+            <label :for="id">
+                <slot name="label"></slot>
+            </label>
+            <span class="required-mark" v-if="required">&nbsp;*</span>
+        </div>
+        <div class="input-group">
+            <slot name="input"></slot>
+        </div>
+        <span class="error-message" v-if="isInvalid">{{ errorMessage }}</span>
+    </div>
+</template>
+
 <style lang="scss" scoped>
 @import '@/styles/mixins.scss';
-label,
-input,
-input::placeholder {
-    @include font(14);
-}
 
-label {
-    font-weight: 500;
-}
+$--label-color: rgb(var(--c-gray-900));
+$--label-required-mark-color: rgb(var(--c-red-500));
+
+$--input-small-height: 32px;
+$--input-small-padding-y: 6px;
+
+$--input-medium-height: 36px;
+$--input-medium-padding-y: 8px;
+
+$--input-large-height: 40px;
+$--input-large-padding-y: 10px;
+
+$--input-padding-x: 12px;
+$--input-border-color: rgb(var(--c-gray-300));
+$--input-placeholder-color: rgb(var(--c-gray-500));
+$--input-hover-bg-color: rgb(var(--c-gray-100));
+$--input-error-border-color: rgb(var(--c-red-500));
+
+$--error-message-color: rgb(var(--c-white));
+$--error-message-bg-color: rgb(var(--c-gray-900));
 
 .label-group {
-    @apply flex mb-2;
+    margin-bottom: 8px;
+    label {
+        @include font(14, 500);
+        color: $--label-color;
+    }
     .required-mark {
-        color: rgb(var(--c-red-500));
-        line-height: 18px;
+        color: $--label-required-mark-color;
     }
 }
 
 .input-group {
     input {
-        @apply px-3 py-2 rounded;
-        border: 1px solid var(--gray-300);
+        @include font(14);
+        font-family: var(--font-family-system);
+
+        border-radius: 4px;
+        border: 1px solid $--input-border-color;
+        outline: none;
+
         &::placeholder {
-            color: var(--gray-500);
+            @include font(14);
+            color: $--input-placeholder-color;
         }
-        &:focus {
-            border-color: var(--primary);
-            outline: none;
+        &.input-error {
+            border-color: $--input-error-border-color !important;
+            &:hover,
+            &:focus {
+                border-color: $--input-error-border-color !important;
+            }
+        }
+
+        &:not(.input-error):hover {
+            background-color: $--input-hover-bg-color;
+        }
+
+        &:not(.input-error):focus {
+            border-color: rgb(var(--c-primary));
+        }
+
+        &.input-has-icon {
+            padding-right: 32px;
         }
     }
-    &:hover input {
-        background-color: var(--gray-200);
-    }
-    input.has-icon {
-        padding-right: 32px;
-    }
+
     .icon {
-        @apply absolute top-1/2 right-2;
+        position: absolute;
+        top: 50%;
+        right: 8px;
         transform: translateY(-50%);
     }
 }
 
-/* Change the border-color of textfield input if it's get error */
-.input-group > .input-error {
-    border-color: var(--red-500) !important;
-}
-
 /* Style error message */
-.input-group:has(.input-error) + .error-message {
-    display: flex;
-    margin-top: 8px;
-    font-size: var(--font-size-extra-small);
-    color: var(--red-500);
+.error-message {
+    position: absolute;
+    left: 16px;
+    bottom: -16px;
+    display: none;
+
+    @include font(12);
+    padding: 4px;
+    border-radius: 2px;
+    color: $--error-message-color;
+    background-color: $--error-message-bg-color;
+
+    .input-group:has(.input-error:hover) + & {
+        display: flex;
+    }
 }
 
 /* === Size of input ===*/
@@ -149,6 +189,7 @@ label {
 }
 /* Input-group */
 .radiofield > .input-group {
-    @apply flex gap-3;
+    display: flex;
+    gap: 12px;
 }
 </style>
