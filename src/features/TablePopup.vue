@@ -1,3 +1,26 @@
+<script setup>
+import { reactive } from 'vue';
+import { IconClose, IconHelp } from '@/assets/icons';
+import { VButton, VCheckbox, VDateField, VRadioButton, VRadioField, VTextField } from '@/components';
+
+const props = defineProps({
+    employeeData: {
+        type: Object,
+        required: true
+    }
+});
+
+const localEmployeeData = reactive(props.employeeData);
+console.log(localEmployeeData);
+
+const handleCancelPopup = () => {};
+
+const handleChangeInputValue = (value, label) => {
+    localEmployeeData[label] = value;
+    console.log('afterChange:', localEmployeeData);
+};
+</script>
+
 <template>
     <div class="popup add-employee-popup">
         <div class="popup-container">
@@ -230,29 +253,6 @@
         </div>
     </div>
 </template>
-
-<script setup>
-import { reactive } from 'vue';
-import { IconClose, IconHelp } from '@/assets/icons';
-import { VButton, VCheckbox, VDateField, VRadioButton, VRadioField, VTextField } from '@/components';
-
-const props = defineProps({
-    employeeData: {
-        type: Object,
-        required: true
-    }
-});
-
-const localEmployeeData = reactive(props.employeeData);
-console.log(localEmployeeData);
-
-const handleCancelPopup = () => {};
-
-const handleChangeInputValue = (value, label) => {
-    localEmployeeData[label] = value;
-    console.log('afterChange:', localEmployeeData);
-};
-</script>
 
 <style lang="scss" scoped>
 @import '@/styles/mixins.scss';

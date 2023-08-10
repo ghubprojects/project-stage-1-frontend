@@ -1,11 +1,15 @@
 <script setup>
 import { VButton } from '@/components';
-import state from '@/store';
+import { ref } from 'vue';
 import DataTable from './DataTable.vue';
+import TablePopup from './TablePopup.vue';
+
+const showNewForm = ref(false);
+const employeeData = ref({});
 
 const handleShowTablePopup = () => {
-    state.showTablePopup = true;
-    state.employeePopupData = {};
+    showNewForm.value = true;
+    employeeData.value = {};
 };
 </script>
 
@@ -13,15 +17,14 @@ const handleShowTablePopup = () => {
     <div id="content">
         <div class="content-header">
             <div class="heading-1">Nhân viên</div>
-            <VButton
-                size="small"
-                type="primary"
-                text="Thêm mới nhân viên"
-                class="add-new-employee-button"
-                @click="handleShowTablePopup()"
-            />
+            <VButton type="primary" size="small" @click="handleShowTablePopup">
+                Thêm mới nhân viên
+            </VButton>
         </div>
         <DataTable />
+        <Teleport to="#app">
+            <TablePopup v-if="showNewForm" :employeeData="employeeData" />
+        </Teleport>
     </div>
 </template>
 

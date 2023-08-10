@@ -27,138 +27,119 @@
     </div>
 </template>
 
-<script>
-import { ref, computed, onMounted } from 'vue';
-import cx from 'classnames';
-export default {
-    name: 'VTextfield',
-    props: {
-        size: {
-            type: String,
-            default: 'medium',
-            validator(value) {
-                return ['large', 'medium', 'small'].includes(value);
-            }
-        },
-        width: {
-            type: String,
-            default: 'medium',
-            validator(value) {
-                return ['full', 'extra-large', 'large', 'medium', 'small', 'extra-small'].includes(
-                    value
-                );
-            }
-        },
-        id: {
-            type: String,
-            required: true
-        },
-        title: {
-            type: String
-        },
-        placeholder: {
-            type: String
-        },
-        value: {
-            type: String,
-            default: null
-        },
-        required: {
-            type: Boolean,
-            default: false
-        },
-        errMsgs: {
-            type: Object
-        },
-        firstFocus: {
-            type: Boolean,
-            default: false
-        },
-        disabled: {
-            type: Boolean,
-            default: false
-        },
-        pattern: {
-            type: RegExp
+<script setup>
+import { ref, computed, onMounted, useSlots } from 'vue';
+
+const props = defineProps({
+    size: {
+        type: String,
+        default: 'medium',
+        validator(val) {
+            return ['large', 'medium', 'small'].includes(val);
         }
     },
-    emits: ['textValue'],
-    setup(props, context) {
-        const showErrorMessage = ref(false);
-
-        /**
-         * Biến hasLabel và hasIcon kiểm tra xem Textfield có label và icon không.
-         * Nếu có, thêm class 'has-label' cho label tag và 'has-icon' cho input tag.
-         */
-        const hasLabel = context.slots.label;
-        const hasIcon = context.slots.icon;
-
-        /**
-         * Dựa vào props size và width được truyền vào,
-         * gán custom class để style cho mỗi size và width của input tương ứng.
-         */
-        const inputClass = computed(() =>
-            cx(
-                `input-size-${props.size}`,
-                `input-width-${props.width}`,
-                { 'input-has-icon': hasIcon },
-                { 'input-error': showErrorMessage.value && isInvalid.value }
-            )
-        );
-
-        // Biến lưu trữ giá trị input.
-        const inputValue = ref(props.value);
-
-        const isEmpty = computed(() => {
-            return props.required && !inputValue.value.trim();
-        });
-
-        const isInvalid = computed(() => {
-            return (
-                (props.required && !inputValue.value.trim()) ||
-                (props.pattern && !props.pattern.test(inputValue.value))
-            );
-        });
-
-        const errorMessage = computed(() => {
-            if (isEmpty.value) {
-                return props.errMsgs.isEmpty;
-            } else if (isInvalid.value) {
-                return props.errMsgs.isInvalid;
-            } else {
-                return '';
-            }
-        });
-
-        /**
-         * Khi thay đổi giá trị input,
-         * cho phép có thể hiển thị errorMessage nếu input trống hoặc không hợp lệ.
-         * Emit dữ liệu inputValue lên TablePopup component.
-         */
-        const handleChange = () => {
-            showErrorMessage.value = true;
-            context.emit('textValue', inputValue.value);
-        };
-
-        const inputRef = ref(null);
-        onMounted(() => {
-            if (props.firstFocus) inputRef.value.focus();
-        });
-
-        return {
-            inputRef,
-            hasLabel,
-            hasIcon,
-            showErrorMessage,
-            inputValue,
-            isEmpty,
-            isInvalid,
-            errorMessage,
-            inputClass,
-            handleChange
-        };
+    width: {
+        type: String,
+        default: 'medium',
+        validator(val) {
+            return ['full', 'extra-large', 'large', 'medium', 'small', 'extra-small'].includes(val);
+        }
+    },
+    id: {
+        type: String,
+        required: true
+    },
+    title: {
+        type: String
+    },
+    placeholder: {
+        type: String
+    },
+    value: {
+        type: String,
+        default: null
+    },
+    required: {
+        type: Boolean,
+        default: false
+    },
+    errMsgs: {
+        type: Object
+    },
+    firstFocus: {
+        type: Boolean,
+        default: false
+    },
+    disabled: {
+        type: Boolean,
+        default: false
+    },
+    pattern: {
+        type: RegExp
     }
+});
+
+const emit = defineEmits(['textValue']);
+const slots = useSlots();
+const showErrorMessage = ref(false);
+
+/**
+ * Biến hasLabel và hasIcon kiểm tra xem Textfield có label và icon không.
+ * Nếu có, thêm class 'has-label' cho label tag và 'has-icon' cho input tag.
+ */
+const hasLabel = slots.label;
+const hasIcon = slots.icon;
+
+/**
+ * Dựa vào props size và width được truyền vào,
+ * gán custom class để style cho mỗi size và width của input tương ứng.
+ */
+const inputClass = computed(() => [
+    `input-size-${props.size}`,
+    `input-width-${props.width}`,
+    { 'input-has-icon': hasIcon },
+    { 'input-error': showErrorMessage.value && isInvalid.value }
+]);
+
+// Biến lưu trữ giá trị input.
+const inputValue = ref(props.value);
+
+const isEmpty = computed(() => {
+    return props.required && !inputValue.value.trim();
+});
+
+const isInvalid = computed(() => {
+    return (
+        (props.required && !inputValue.value.trim()) ||
+        (props.pattern && !props.pattern.test(inputValue.value))
+    );
+});
+
+const errorMessage = computed(() => {
+    if (isEmpty.value) {
+        return props.errMsgs.isEmpty;
+    } else if (isInvalid.value) {
+        return props.errMsgs.isInvalid;
+    } else {
+        return '';
+    }
+});
+
+/**
+ * Khi thay đổi giá trị input,
+ * cho phép có thể hiển thị errorMessage nếu input trống hoặc không hợp lệ.
+ * Emit dữ liệu inputValue lên TablePopup component.
+ */
+const handleChange = () => {
+    showErrorMessage.value = true;
+    emit('textValue', inputValue.value);
 };
+
+const inputRef = ref(null);
+
+onMounted(() => {
+    if (props.firstFocus) inputRef.value.focus();
+});
 </script>
 
 <style lang="scss" scoped>
@@ -174,7 +155,8 @@ label {
 }
 
 .label-group {
-    @apply flex mb-2;
+    display: flex;
+    margin-bottom: 8px;
     .required-mark {
         color: rgb(var(--c-red-500));
         line-height: 18px;
@@ -183,7 +165,8 @@ label {
 
 .input-group {
     input {
-        @apply px-3 py-2 rounded;
+        padding: 8px 12px;
+        border-radius: 4px;
         border: 1px solid rgb(var(--c-gray-300));
         &::placeholder {
             color: rgb(var(--c-gray-500));
@@ -200,7 +183,9 @@ label {
         padding-right: 32px;
     }
     .icon {
-        @apply absolute top-1/2 right-2;
+        position: absolute;
+        top: 50%;
+        right: 8px;
         transform: translateY(-50%);
     }
 }

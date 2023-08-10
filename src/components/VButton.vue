@@ -2,38 +2,28 @@
 import { computed } from 'vue';
 
 const props = defineProps({
-    size: {
-        type: String,
-        default: 'medium',
-        validator(value) {
-            return ['large', 'medium', 'small'].includes(value);
-        }
-    },
-
     type: {
         type: String,
         default: 'primary',
-        validator(value) {
-            return ['primary', 'outline'].includes(value);
+        validator(val) {
+            return ['primary', 'outline'].includes(val);
         }
     },
-
-    disabled: {
-        type: Boolean,
-        default: false
-    },
-
-    text: {
+    size: {
         type: String,
-        required: true
-    }
+        default: 'medium',
+        validator(val) {
+            return ['large', 'medium', 'small'].includes(val);
+        }
+    },
+    disabled: Boolean
 });
 
 /**
- * Based on the size and type props passed in,
- * assign classes to style each corresponding size and type of button.
+ * Based on the type and size props passed in,
+ * assign classes to style each corresponding type and size of button.
  */
-const buttonClass = computed(() => `button button-${props.size} button-${props.type}`);
+const buttonClass = computed(() => ['button', `button-${props.type}`, `button-${props.size}`]);
 
 /**
  * If the disabled prop is passed in, set the disabled state for the button.
@@ -43,65 +33,88 @@ const isDisabled = computed(() => props.disabled);
 
 <template>
     <button :class="buttonClass" :disabled="isDisabled">
-        <span class="button-text">{{ text }}</span>
+        <slot></slot>
     </button>
 </template>
 
 <style scoped lang="scss">
+$--button-min-width: 80px;
+$--button-padding-x: 16px;
+
+$--button-small-height: 32px;
+$--button-small-padding-y: 7px;
+
+$--button-medium-height: 36px;
+$--button-medium-padding-y: 9px;
+
+$--button-large-height: 40px;
+$--button-large-padding-y: 11px;
+
+$--button-primary-color: rgb(var(--c-white));
+$--button-primary-bg-color: var(--c-primary);
+$--button-primary-hover-bg-color: rgb(var(--c-light-green-500));
+$--button-primary-pressed-bg-color: rgb(var(--c-green-600));
+
+$--button-outline-color: rgb(var(--c-gray-900));
+$--button-outline-bg-color: rgb(var(--c-white));
+$--button-outline-border-color: rgb(230, 230, 230);
+$--button-outline-hover-bg-color: rgb(var(--c-gray-100));
+$--button-outline-pressed-bg-color: rgb(var(--c-gray-200));
+
 @import '@/styles/mixins.scss';
-.button-large {
-    height: 40px;
+.button-small {
+    height: $--button-small-height;
+    padding: $--button-small-padding-y $--button-padding-x;
 }
 .button-medium {
-    height: 36px;
+    height: $--button-medium-height;
+    padding: $--button-medium-padding-y $--button-padding-x;
 }
-.button-small {
-    height: 32px;
+.button-large {
+    height: $--button-large-height;
+    padding: $--button-large-padding-y $--button-padding-x;
 }
 
 .button {
     display: flex;
     justify-content: center;
     align-items: center;
-    cursor: pointer;
-
-    padding: 8px 16px 8px 12px;
     border-radius: 4px;
-    .button-text {
-        padding-left: 4px;
-        font-size: var(--font-size-14);
-        font-weight: 500;
-        font-family: var(--font-family-system);
-    }
+
+    @include font(14);
+    font-family: var(--font-family-system);
+    font-weight: 500;
+    cursor: pointer;
 }
 
 .button-primary {
-    min-width: 80px;
-    background-color: rgb(var(--c-primary));
+    min-width: $--button-min-width;
+    color: $--button-primary-color;
+    background-color: $--button-primary-bg-color;
     border: none;
-    &:hover {
-        background-color: rgb(var(--c-light-green-500));
+    &:hover:not(:disabled) {
+        background-color: $--button-primary-hover-bg-color;
     }
-    .button-text {
-        color: rgb(var(--c-white));
+    &:active:not(:disabled) {
+        background-color: $--button-primary-pressed-bg-color;
     }
 }
 
 .button-outline {
-    min-width: 80px;
-    border: 2px solid rgb(var(--c-gray-300));
-    background-color: transparent;
-    &:hover {
-        border: none;
-        background-color: rgb(var(--c-gray-400));
+    min-width: $--button-min-width;
+    border: 1px solid $--button-outline-border-color;
+    color: $--button-outline-color;
+    background-color: $--button-outline-bg-color;
+    &:hover:not(:disabled) {
+        background-color: $--button-outline-hover-bg-color;
     }
-    .button-text {
-        color: rgb(var(--c-gray-900));
+    &:active:not(:disabled) {
+        background-color: $--button-outline-pressed-bg-color;
     }
 }
 
 .button:disabled {
     cursor: not-allowed;
-    opacity: 0.5;
+    opacity: 0.56;
 }
 </style>
