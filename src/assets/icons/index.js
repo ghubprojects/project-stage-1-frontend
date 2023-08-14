@@ -1,4 +1,5 @@
 export { default as IconArrowDown } from './IconArrowDown.vue';
+export { default as IconArrowLeft } from './IconArrowLeft.vue';
 export { default as IconArrowRight } from './IconArrowRight.vue';
 export { default as IconBag } from './IconBag.vue';
 export { default as IconBank } from './IconBank.vue';
@@ -21,3 +22,4 @@ export { default as IconSearch } from './IconSearch.vue';
 export { default as IconStock } from './IconStock.vue';
 export { default as IconTax } from './IconTax.vue';
 export { default as IconTools } from './IconTools.vue';
+

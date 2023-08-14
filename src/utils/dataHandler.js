@@ -18,7 +18,7 @@ export const getGender = (genderNumber) => {
 };
 
 export const getDate = (date) => {
-    if (date === null) return '';
+    if (date) return '';
     const dateObj = new Date(date);
     const formattedDate = dateObj.toLocaleDateString('en-GB');
     return formattedDate;

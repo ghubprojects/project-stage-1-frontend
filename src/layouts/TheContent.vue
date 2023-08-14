@@ -1,30 +1,23 @@
 <script setup>
 import { VButton } from '@/components';
+import { DataTable, EmployeeDetails } from '@/features';
+import { useEmployeeDetailsStore } from '@/stores/employeeDetails';
 import { ref } from 'vue';
-import DataTable from './DataTable.vue';
-import TablePopup from './TablePopup.vue';
 
-const showNewForm = ref(false);
 const employeeData = ref({});
 
-const handleShowTablePopup = () => {
-    showNewForm.value = true;
-    employeeData.value = {};
-};
+const employeeDetails = useEmployeeDetailsStore();
 </script>
 
 <template>
     <div id="content">
         <div class="content-header">
             <div class="heading-1">Nhân viên</div>
-            <VButton type="primary" size="small" @click="handleShowTablePopup">
+            <VButton type="primary" size="small" @click="employeeDetails.createDetails">
                 Thêm mới nhân viên
             </VButton>
         </div>
         <DataTable />
-        <Teleport to="#app">
-            <TablePopup v-if="showNewForm" :employeeData="employeeData" />
-        </Teleport>
     </div>
 </template>
 
@@ -32,7 +25,7 @@ const handleShowTablePopup = () => {
 #content {
     height: calc(100% - var(--header-height));
     padding: 20px 24px 24px;
-    background-color: var(--gray-200);
+    background-color: rgb(var(--c-gray-200));
     .content-header {
         display: flex;
         justify-content: space-between;
@@ -41,3 +34,4 @@ const handleShowTablePopup = () => {
     }
 }
 </style>
+@/stores/employeeDetails

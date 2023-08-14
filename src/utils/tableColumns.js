@@ -33,14 +33,14 @@ export const tableColumns = [
         name: 'identity-number',
         header: 'số cmnd',
         property: 'IdentityNumber',
-        width: 'large',
+        width: 'medium',
         title: 'Số chứng minh nhân dân',
     },
     {
         name: 'position-name',
         header: 'chức danh',
         property: 'PositionName',
-        width: 'extra-large',
+        width: 'large',
     },
     {
         name: 'department-name',

@@ -1,10 +1,6 @@
 <script setup>
 import { ref, computed, useSlots } from 'vue';
 const props = defineProps({
-    id: {
-        type: String,
-        required: true
-    },
     disabled: {
         type: Boolean,
         default: false
@@ -16,11 +12,11 @@ const props = defineProps({
 });
 
 /**
- * The variable "hasLabel, hasIcon" checks whether a radiofield contains a label, a icon or not.
- * If it does, it adds the class 'has-label' to the label tag, 'has-icon' to the input tag.
+ * The variable "hasLegend" checks whether a radiofield contains a legend or not.
+ * If it does, it adds the class 'has-legend' to the label tag.
  */
 const slots = useSlots();
-const hasLabel = slots.label;
+const hasLegend = slots.legend;
 
 // Biến lưu trữ giá trị input.
 const inputValue = ref('');
@@ -48,14 +44,14 @@ const errorMessage = computed(() => {
 
 <template>
     <div class="radiofield">
-        <div class="label-group" v-if="hasLabel">
-            <label :for="id">
-                <slot name="label"></slot>
-            </label>
+        <div class="legend-group" v-if="hasLegend">
+            <legend>
+                <slot name="legend"></slot>
+            </legend>
             <span class="required-mark" v-if="required">&nbsp;*</span>
         </div>
         <div class="input-group">
-            <slot name="input"></slot>
+            <slot name="input-group"></slot>
         </div>
         <span class="error-message" v-if="isInvalid">{{ errorMessage }}</span>
     </div>
@@ -85,56 +81,14 @@ $--input-error-border-color: rgb(var(--c-red-500));
 $--error-message-color: rgb(var(--c-white));
 $--error-message-bg-color: rgb(var(--c-gray-900));
 
-.label-group {
+.legend-group {
     margin-bottom: 8px;
-    label {
+    legend {
         @include font(14, 500);
         color: $--label-color;
     }
     .required-mark {
         color: $--label-required-mark-color;
-    }
-}
-
-.input-group {
-    input {
-        @include font(14);
-        font-family: var(--font-family-system);
-
-        border-radius: 4px;
-        border: 1px solid $--input-border-color;
-        outline: none;
-
-        &::placeholder {
-            @include font(14);
-            color: $--input-placeholder-color;
-        }
-        &.input-error {
-            border-color: $--input-error-border-color !important;
-            &:hover,
-            &:focus {
-                border-color: $--input-error-border-color !important;
-            }
-        }
-
-        &:not(.input-error):hover {
-            background-color: $--input-hover-bg-color;
-        }
-
-        &:not(.input-error):focus {
-            border-color: rgb(var(--c-primary));
-        }
-
-        &.input-has-icon {
-            padding-right: 32px;
-        }
-    }
-
-    .icon {
-        position: absolute;
-        top: 50%;
-        right: 8px;
-        transform: translateY(-50%);
     }
 }
 

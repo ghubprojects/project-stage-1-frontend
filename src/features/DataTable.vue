@@ -3,26 +3,22 @@ import { onMounted, onUnmounted, ref } from 'vue';
 
 import { IconExpandMore, IconRefresh, IconSearch } from '@/assets/icons';
 import { VDialog, VDropdownlist, VTextField } from '@/components';
-import TablePopup from './TablePopup.vue';
+import EmployeeDetails from './EmployeeDetails.vue';
 
-import * as employeeDataService from '@/services/employeeDataService';
-import state from '@/store';
+// import * as employeeDataService from '@/services/employeeDataService';
+// import state from '@/store';
+import { useEmployeeDetailsStore } from '@/stores/employeeDetails';
+
 import * as dataHandler from '@/utils/dataHandler';
 import { employeeList } from '@/utils/employeeData';
 import { tableColumns } from '@/utils/tableColumns';
 
-defineProps({
-    showPopup: {
-        type: Boolean,
-        default: false
-    }
-});
+const employeeDetails = useEmployeeDetailsStore();
 
 const showDialog = ref(false);
 const fixedColumns = ['employee-check', 'employee-code', 'full-name'];
 
-const employeesList = ref([]);
-const employeeData = ref({});
+const employeesList = ref(employeeList);
 
 /**
  * Lấy dữ liệu của tất cả employees từ API.
@@ -39,13 +35,13 @@ const getAllEmployees = async () => {
 /**
  * Lấy dữ liệu của tất cả employees từ API.
  */
-const getEmployeeById = async (id) => {
-    try {
-        employeeData.value = await employeeDataService.readById(id);
-    } catch (err) {
-        console.log(err);
-    }
-};
+// const getEmployeeById = async (id) => {
+//     try {
+//         employeeData.value = await employeeDataService.readById(id);
+//     } catch (err) {
+//         console.log(err);
+//     }
+// };
 
 /**
  * Reload dữ liệu khi click vào IconRefresh.
@@ -58,60 +54,52 @@ const handleReloadData = async () => {
 /**
  * Định dạng lại dữ liệu nhân viên lấy từ API.
  */
-const formatDataCell = (data, property) => {
-    switch (property) {
-        case 'Gender':
-            return dataHandler.getGender(data[property]);
-        case 'DateOfBirth':
-            return dataHandler.getDate(data[property]);
-        default:
-            return data[property];
-    }
-};
+const formatDataCell = (data, property) =>
+    property === 'Gender' ? dataHandler.getGender(data[property]) : data[property];
 
 // Hàm xử lý khi click vào ExpandIcon.
-const handleClickExpandIcon = (event, index) => {
-    /**
-     * Nếu click vào ExpandIcon 2 lần, gán currentRow = null.
-     * Nếu không thì, gán previousRow = currentRow và currentRow = index hiện tại.
-     */
-    if (state.currentRow === index) state.currentRow = null;
-    else {
-        state.previousRow = state.currentRow;
-        state.currentRow = index;
-    }
+// const handleClickExpandIcon = (event, index) => {
+//     /**
+//      * Nếu click vào ExpandIcon 2 lần, gán currentRow = null.
+//      * Nếu không thì, gán previousRow = currentRow và currentRow = index hiện tại.
+//      */
+//     if (state.currentRow === index) state.currentRow = null;
+//     else {
+//         state.previousRow = state.currentRow;
+//         state.currentRow = index;
+//     }
 
-    // Ngăn chặn nổi bọt sự kiện ra window khi click vào ExpandIcon
-    event.stopPropagation();
+//     // Ngăn chặn nổi bọt sự kiện ra window khi click vào ExpandIcon
+//     event.stopPropagation();
 
-    // Hiển thị trạng thái row đang xử lý
-    console.table({
-        index: index,
-        'state.previousRow': state.previousRow,
-        'state.currentRow': state.currentRow
-    });
-};
+//     // Hiển thị trạng thái row đang xử lý
+//     console.table({
+//         index: index,
+//         'state.previousRow': state.previousRow,
+//         'state.currentRow': state.currentRow
+//     });
+// };
 
 // Hàm đóng dropdown, được gọi khi click vào window (blur)
-const closeDropdown = () => {
-    state.currentRow = null;
-};
+// const closeDropdown = () => {
+//     state.currentRow = null;
+// };
 
-// Mở TablePopup, lấy dữ liệu nhân viên theo ID và gán vào employeeData.
-const handleShowTablePopup = async (employee) => {
-    await getEmployeeById(employee.EmployeeId);
-    state.showTablePopup = true;
-};
+// // Mở TablePopup, lấy dữ liệu nhân viên theo ID và gán vào employeeData.
+// const handleShowTablePopup = async (employee) => {
+//     await getEmployeeById(employee.EmployeeId);
+//     state.showTablePopup = true;
+// };
 
-onMounted(() => {
-    getAllEmployees();
-    // Click ra ngoài window, đóng dropdown.
-    window.addEventListener('click', closeDropdown);
-});
-onUnmounted(() => {
-    // Khi bị unmount, loại bỏ sự kiện click khỏi đối tượng window.
-    window.removeEventListener('click', closeDropdown);
-});
+// onMounted(() => {
+//     getAllEmployees();
+//     // Click ra ngoài document, đóng dropdown.
+//     document.addEventListener('click', closeDropdown);
+// });
+// onUnmounted(() => {
+//     // Khi bị unmount, loại bỏ sự kiện click khỏi đối tượng document.
+//     document.removeEventListener('click', closeDropdown);
+// });
 </script>
 
 <template>
@@ -155,7 +143,7 @@ onUnmounted(() => {
                     <tr
                         v-for="(employee, index) in employeesList"
                         :key="index"
-                        @dblclick="handleShowTablePopup(employee)"
+                        @dblclick="employeeDetails.showDetails(employee)"
                     >
                         <td
                             v-for="(column, index) in tableColumns"
@@ -191,10 +179,10 @@ onUnmounted(() => {
                     </tr>
                 </tbody>
                 <Teleport to="#app">
-                    <VDialog v-if="showDialog" @closeDialog="showDialog = false" />
+                    <VDialog v-if="false" @close-dialog="showDialog = false" />
                 </Teleport>
                 <Teleport to="#app">
-                    <TablePopup v-show="false" :employeeData="employeeData" />
+                    <EmployeeDetails v-if="employeeDetails.isShowDetails" />
                 </Teleport>
             </table>
             <div class="record-manager">
@@ -236,7 +224,8 @@ onUnmounted(() => {
 
 #data-table {
     height: calc(100% - 48px);
-    font-size: var(--font-size-small);
+
+    @include font(13);
     background-color: rgb(var(--c-white));
 }
 
@@ -301,16 +290,16 @@ table {
 /* Table Header Row */
 /* Width of cell */
 .cell-extra-large {
-    min-width: 250px;
+    min-width: 260px;
 }
 .cell-large {
     min-width: 200px;
 }
 .cell-medium {
-    min-width: 150px;
+    min-width: 160px;
 }
 .cell-small {
-    min-width: 120px;
+    min-width: 128px;
 }
 
 .cell-extra-small {
@@ -495,3 +484,4 @@ td {
     }
 }
 </style>
+@/stores/employeeDetails @/utils/employeeField

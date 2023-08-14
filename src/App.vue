@@ -1,5 +1,5 @@
 <script setup>
-import { TheContent, TheHeader, TheSidebar } from '@/features';
+import { TheContent, TheHeader, TheSidebar } from '@/layouts';
 </script>
 
 <template>

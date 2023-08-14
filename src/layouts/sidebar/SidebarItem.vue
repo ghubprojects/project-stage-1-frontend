@@ -21,17 +21,24 @@ defineProps({
 <style lang="scss" scoped>
 @import '@/styles/mixins.scss';
 
+$--menu-item-padding-x: 12px;
+$--menu-item-padding-y: 10px;
+$--menu-item-border-radius: 6px;
+$--menu-item-text-color: rgba(var(--c-white));
+$--menu-item-bg-color: rgba(var(--c-gray-600), 0.9);
+
 /* Styles for menu-item */
 .menu-item {
     display: flex;
-    padding: 10px 12px;
     gap: 12px;
     align-items: center;
-    border-radius: 6px;
+
+    padding: $--menu-item-padding-y $--menu-item-padding-x;
+    border-radius: $--menu-item-border-radius;
     cursor: pointer;
 
     &:hover {
-        background-color: rgba(var(--c-gray-600), 0.9);
+        background-color: $--menu-item-bg-color;
     }
 
     .icon {
@@ -39,9 +46,8 @@ defineProps({
     }
 
     .title {
-        @include font('14');
-        font-weight: 500;
-        color: rgb(var(--c-white));
+        @include font(14, 500);
+        color: $--menu-item-text-color;
     }
 }
 </style>

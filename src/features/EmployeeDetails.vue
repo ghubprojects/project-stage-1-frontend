@@ -1,5 +1,4 @@
 <script setup>
-import { reactive } from 'vue';
 import { IconClose, IconHelp } from '@/assets/icons';
 import {
     VButton,
@@ -9,23 +8,18 @@ import {
     VRadioField,
     VTextField
 } from '@/components';
+import { useEmployeeDetailsStore } from '@/stores/employeeDetails';
+import { Gender } from '@/utils/enums';
 
-const props = defineProps({
-    employeeData: {
-        type: Object,
-        required: true
-    }
-});
-
-const localEmployeeData = reactive(props.employeeData);
-console.log(localEmployeeData);
+const employeeDetails = useEmployeeDetailsStore();
+const { currentEmployee } = employeeDetails;
 
 const handleCancelPopup = () => {};
 
-const handleChangeInputValue = (value, label) => {
-    localEmployeeData[label] = value;
-    console.log('afterChange:', localEmployeeData);
-};
+// const handleChangeInputValue = (value, label) => {
+//     currentEmployee[label] = value;
+//     console.log('afterChange:', currentEmployee);
+// };
 </script>
 
 <template>
@@ -43,7 +37,7 @@ const handleChangeInputValue = (value, label) => {
                 <!-- Popup-header right-group -->
                 <div class="right-group">
                     <IconHelp class="help-icon" />
-                    <IconClose class="close-icon" @click="$state.showTablePopup = false" />
+                    <IconClose class="close-icon" @click="employeeDetails.hideDetails" />
                 </div>
             </div>
 
@@ -56,7 +50,7 @@ const handleChangeInputValue = (value, label) => {
                                 size="small"
                                 width="medium"
                                 id="employee-code"
-                                :value="localEmployeeData.EmployeeCode"
+                                :value="currentEmployee.EmployeeCode"
                                 @textValue="handleChangeInputValue($event, 'EmployeeCode')"
                                 required
                                 :errMsgs="{ isEmpty: `Mã không được để trống` }"
@@ -69,7 +63,7 @@ const handleChangeInputValue = (value, label) => {
                                 size="small"
                                 width="large"
                                 id="full-name"
-                                :value="localEmployeeData.FullName"
+                                :value="currentEmployee.FullName"
                                 title="title"
                                 @textValue="handleChangeInputValue($event, 'FullName')"
                                 required
@@ -84,7 +78,7 @@ const handleChangeInputValue = (value, label) => {
                             width="full"
                             id="department-name"
                             required
-                            :value="localEmployeeData.DepartmentName"
+                            :value="currentEmployee.DepartmentName"
                             @textValue="handleChangeInputValue($event, 'DepartmentName')"
                             :errMsgs="{
                                 isEmpty: `Đơn vị không được để trống`,
@@ -98,7 +92,7 @@ const handleChangeInputValue = (value, label) => {
                             size="small"
                             width="full"
                             id="position-name"
-                            :value="localEmployeeData.PositionName"
+                            :value="currentEmployee.PositionName"
                             @textValue="handleChangeInputValue($event, 'PositionName')"
                         >
                             <template #label>Chức danh</template>
@@ -111,35 +105,41 @@ const handleChangeInputValue = (value, label) => {
                             <VDateField
                                 size="small"
                                 id="date-of-birth"
-                                :value="localEmployeeData.DateOfBirth"
+                                :value="currentEmployee.DateOfBirth"
+                                :errMsgs="{
+                                    isInvalid: `Ngày sinh không hợp lệ`
+                                }"
                             >
                                 <template #label>Ngày sinh</template>
                             </VDateField>
 
-                            <VRadioField id="gender" :value="localEmployeeData.Gender">
-                                <template #label>Giới tính</template>
-                                <template #input>
+                            <VRadioField>
+                                <template #legend>Giới tính</template>
+                                <template #input-group>
                                     <VRadioButton
-                                        id="male-gender"
+                                        id="male"
                                         name="gender"
-                                        :value="localEmployeeData.Gender === 0"
-                                        @update:radioValue="abc()"
+                                        :value="Gender.Male"
+                                        :checked="currentEmployee.Gender === Gender.Male"
                                     >
                                         <template #label>Nam</template>
                                     </VRadioButton>
 
                                     <VRadioButton
-                                        id="female-gender"
+                                        id="female"
                                         name="gender"
-                                        :value="localEmployeeData.Gender === 1"
+                                        :value="Gender.Female"
+                                        :checked="currentEmployee.Gender === Gender.Female"
                                     >
+                                        >
                                         <template #label>Nữ</template>
                                     </VRadioButton>
 
                                     <VRadioButton
-                                        id="other-gender"
+                                        id="other"
                                         name="gender"
-                                        :value="localEmployeeData.Gender === 2"
+                                        :value="Gender.Other"
+                                        :checked="currentEmployee.Gender === Gender.Other"
                                     >
                                         <template #label>Khác</template>
                                     </VRadioButton>
@@ -153,13 +153,20 @@ const handleChangeInputValue = (value, label) => {
                                 width="large"
                                 id="identity-number"
                                 title="Số chứng minh nhân dân"
-                                :value="localEmployeeData.IdentityNumber"
+                                :value="currentEmployee.IdentityNumber"
                                 @textValue="handleChangeInputValue($event, 'IdentityNumber')"
                             >
                                 <template #label>Số CMND</template>
                             </VTextField>
 
-                            <VDateField size="small" id="identity-date">
+                            <VDateField
+                                size="small"
+                                id="date-of-issue"
+                                :value="currentEmployee.DateOfIssue"
+                                :errMsgs="{
+                                    isInvalid: `Ngày cấp không hợp lệ`
+                                }"
+                            >
                                 <template #label>Ngày cấp</template>
                             </VDateField>
                         </div>
@@ -168,7 +175,7 @@ const handleChangeInputValue = (value, label) => {
                             size="small"
                             width="full"
                             id="identity-department"
-                            :value="localEmployeeData.IdentityPlace"
+                            :value="currentEmployee.PlaceOfIssue"
                             @textValue="handleChangeInputValue($event, 'IdentityPlace')"
                         >
                             <template #label>Nơi cấp</template>
@@ -181,7 +188,7 @@ const handleChangeInputValue = (value, label) => {
                     width="full"
                     id="address"
                     style="margin-top: 24px"
-                    :value="localEmployeeData.Address"
+                    :value="currentEmployee.Address"
                     @textValue="handleChangeInputValue($event, 'Address')"
                 >
                     <template #label>Địa chỉ</template>
@@ -192,14 +199,18 @@ const handleChangeInputValue = (value, label) => {
                         <VTextField
                             size="small"
                             width="large"
-                            id="phone"
-                            :value="localEmployeeData.PhoneNumber"
-                            @textValue="handleChangeInputValue($event, 'PhoneNumber')"
+                            id="mobile-phone"
+                            :value="currentEmployee.MobilePhone"
                         >
                             <template #label>ĐT di động</template>
                         </VTextField>
 
-                        <VTextField size="small" width="large" id="fax">
+                        <VTextField
+                            size="small"
+                            width="large"
+                            id="landline-phone"
+                            :value="currentEmployee.LandlinePhone"
+                        >
                             <template #label>ĐT cố định</template>
                         </VTextField>
 
@@ -207,7 +218,7 @@ const handleChangeInputValue = (value, label) => {
                             size="small"
                             width="large"
                             id="email"
-                            :value="localEmployeeData.Email"
+                            :value="currentEmployee.Email"
                             @textValue="handleChangeInputValue($event, 'Email')"
                         >
                             <template #label>Email</template>
@@ -215,15 +226,30 @@ const handleChangeInputValue = (value, label) => {
                     </div>
 
                     <div class="second-line">
-                        <VTextField size="small" width="large" id="bank-account">
+                        <VTextField
+                            size="small"
+                            width="large"
+                            id="bank-account"
+                            :value="currentEmployee.BankAccount"
+                        >
                             <template #label>Tài khoản ngân hàng</template>
                         </VTextField>
 
-                        <VTextField size="small" width="large" id="bank-name">
+                        <VTextField
+                            size="small"
+                            width="large"
+                            id="bank-name"
+                            :value="currentEmployee.BankName"
+                        >
                             <template #label>Tên ngân hàng</template>
                         </VTextField>
 
-                        <VTextField size="small" width="large" id="bank-branch">
+                        <VTextField
+                            size="small"
+                            width="large"
+                            id="bank-branch"
+                            :value="currentEmployee.BankBranch"
+                        >
                             <template #label>Chi nhánh</template>
                         </VTextField>
                     </div>
@@ -241,7 +267,11 @@ const handleChangeInputValue = (value, label) => {
                     <VButton type="outline" class="add-btn" onclick="validateEmptyTextField">
                         Cất
                     </VButton>
-                    <VButton type="primary" class="add-more-btn" onclick="validateEmptyTextField">
+                    <VButton
+                        type="primary"
+                        class="add-more-btn"
+                        onclick="validateEmptyTextField"
+                    >
                         Cất và Thêm</VButton
                     >
                 </div>
@@ -277,7 +307,7 @@ const handleChangeInputValue = (value, label) => {
 /* Styles for popup-header */
 .popup-header {
     margin-top: 24px;
-    padding: 0 32px;
+    padding: 0 24px;
 
     display: flex;
     justify-content: space-between;
@@ -305,7 +335,7 @@ const handleChangeInputValue = (value, label) => {
     display: flex;
     flex-direction: column;
     gap: 16px;
-    padding: 24px 32px 32px;
+    padding: 24px;
     .group-1 {
         display: flex;
         justify-content: space-between;
@@ -333,14 +363,14 @@ const handleChangeInputValue = (value, label) => {
 .popup-footer {
     display: flex;
     justify-content: space-between;
-    padding: 20px 32px;
+    padding: 12px 24px;
     border-radius: 0 0 4px 4px;
 
     background-color: rgb(var(--c-gray-200));
     border-top: 1px solid rgb(var(--c-gray-300));
     .right-group {
         display: flex;
-        gap: 12px;
+        gap: 8px;
     }
 }
 </style>

@@ -1,26 +1,35 @@
 <script setup>
 import { VButton } from '@/components';
 import { IconClose } from '@/assets/icons';
+import IconWarning from '@/assets/icons/IconWarning.vue';
+
+const emit = defineEmits(['closeDialog']);
 </script>
 
 <template>
     <div class="dialog">
         <div class="dialog-container">
-            <div class="dialog-header">
-                <div class="heading heading-1">Cảnh báo</div>
-                <IconClose class="close-icon" @click="$emit('closeDialog')" />
-            </div>
-            <div class="dialog-description">
-                Mã nhân viên &lt;NV-0001&gt; đã tồn tại trong hệ thống, vui lòng kiểm tra lại.
+            <div class="dialog-wrapper">
+                <IconWarning class="warning-icon" />
+                <div class="dialog-content">
+                    <div class="dialog-header">
+                        <div class="heading heading-1">Cảnh báo</div>
+                        <IconClose class="close-icon" @click="emit('closeDialog')" />
+                    </div>
+                    <div class="dialog-description">
+                        Mã nhân viên &lt;1001&gt; đã tồn tại trong hệ thống, vui lòng kiểm tra lại.
+                    </div>
+                </div>
             </div>
             <div class="dialog-footer">
                 <VButton
                     size="medium"
                     type="primary"
-                    text="Đồng ý"
                     class="agree-button"
-                    @click="$emit('closeDialog')"
-                />
+                    @click="emit('closeDialog')"
+                >
+                    Đồng ý
+                </VButton>
             </div>
         </div>
     </div>
@@ -29,24 +38,60 @@ import { IconClose } from '@/assets/icons';
 <style lang="scss" scoped>
 @import '@/styles/mixins.scss';
 .dialog {
-    @apply fixed inset-0 flex items-center justify-center z-50;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 50;
     background-color: var(--modal-background);
 }
 
 .dialog-container {
-    @apply flex flex-col gap-6 p-6 rounded;
-    background-color: var(--white);
+    max-width: 480px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    padding: 24px;
+    border-radius: 4px;
+    background-color: rgb(var(--c-white));
+    .dialog-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+}
+
+.warning-icon {
+    @include size(60px);
+    color: rgb(var(--c-red-400));
+}
+
+.dialog-content {
+    max-width: 348px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
 }
 
 .dialog-header {
-    @apply flex items-center justify-between;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
     .close-icon {
         @include size(24px);
-        cursor: pointer;
         transform: scale(20/24);
+        cursor: pointer;
     }
 }
+
 .dialog-footer {
-    @apply flex justify-end;
+    display: flex;
+    justify-content: flex-end;
 }
 </style>

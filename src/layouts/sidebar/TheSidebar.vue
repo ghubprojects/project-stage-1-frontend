@@ -1,11 +1,20 @@
+<script setup>
+import { IconOption } from '@/assets/icons';
+import { menuItemList } from '@/utils/menuItemList';
+import SidebarItem from './SidebarItem.vue';
+
+// logo image path
+const logoSrc = 'src/assets/images/logo.svg';
+</script>
+
 <template>
     <div id="sidebar">
         <div class="logo">
             <IconOption class="option-icon" />
-            <VImage :src="logoSrc" alt="logo-image" class="logo-image" />
+            <img :src="logoSrc" alt="logo-image" class="logo-image" />
         </div>
         <div class="menu">
-            <TheMenuItem
+            <SidebarItem
                 v-for="(menuItem, index) in menuItemList"
                 :key="index"
                 :icon="menuItem.icon"
@@ -14,16 +23,6 @@
         </div>
     </div>
 </template>
-
-<script setup>
-import { IconOption } from '@/assets/icons';
-import { VImage } from '@/components';
-import { menuItemList } from '@/utils/menuItemList';
-import { ref } from 'vue';
-import TheMenuItem from './SidebarMenuItem.vue';
-
-const logoSrc = ref('src/assets/images/logo.svg');
-</script>
 
 <style lang="scss" scoped>
 @import '@/styles/mixins.scss';
@@ -39,14 +38,13 @@ const logoSrc = ref('src/assets/images/logo.svg');
     gap: 20px;
     align-items: center;
     height: var(--header-height);
+    cursor: pointer;
     .option-icon {
         @include size(24px);
-        cursor: pointer;
     }
 
     .logo-image {
         height: 32px;
-        cursor: pointer;
     }
 }
 

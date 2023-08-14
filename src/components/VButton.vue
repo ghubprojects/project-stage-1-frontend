@@ -6,14 +6,14 @@ const props = defineProps({
         type: String,
         default: 'primary',
         validator(val) {
-            return ['primary', 'outline'].includes(val);
+            return ['primary', 'secondary', 'outline'].includes(val);
         }
     },
     size: {
         type: String,
         default: 'medium',
         validator(val) {
-            return ['large', 'medium', 'small'].includes(val);
+            return ['extra-large', 'large', 'medium', 'small'].includes(val);
         }
     },
     disabled: Boolean
@@ -52,10 +52,18 @@ $--button-medium-padding-y: 9px;
 $--button-large-height: 40px;
 $--button-large-padding-y: 11px;
 
+$--button-extra-large-height: 48px;
+$--button-extra-large-padding-y: 15px;
+
 $--button-primary-color: rgb(var(--c-white));
 $--button-primary-bg-color: rgb(var(--c-primary));
 $--button-primary-hover-bg-color: rgb(var(--c-light-green-500));
 $--button-primary-pressed-bg-color: rgb(var(--c-green-600));
+
+$--button-secondary-color: rgb(var(--c-primary));
+$--button-secondary-bg-color: rgb(var(--c-white));
+$--button-secondary-hover-bg-color: rgb(var(--c-gray-100));
+$--button-secondary-pressed-bg-color: rgb(var(--c-gray-200));
 
 $--button-outline-color: rgb(var(--c-gray-900));
 $--button-outline-bg-color: rgb(var(--c-white));
@@ -75,12 +83,22 @@ $--button-outline-pressed-bg-color: rgb(var(--c-gray-200));
     height: $--button-large-height;
     padding: $--button-large-padding-y $--button-padding-x;
 }
+.button-large {
+    height: $--button-large-height;
+    padding: $--button-large-padding-y $--button-padding-x;
+}
+.button-extra-large {
+    height: $--button-extra-large-height;
+    padding: $--button-extra-large-padding-y $--button-padding-x;
+}
 
 .button {
     display: flex;
     justify-content: center;
     align-items: center;
+
     border-radius: 4px;
+    min-width: $--button-min-width;
 
     @include font(14);
     font-family: var(--font-family-system);
@@ -89,7 +107,6 @@ $--button-outline-pressed-bg-color: rgb(var(--c-gray-200));
 }
 
 .button-primary {
-    min-width: $--button-min-width;
     color: $--button-primary-color;
     background-color: $--button-primary-bg-color;
     border: none;
@@ -101,8 +118,19 @@ $--button-outline-pressed-bg-color: rgb(var(--c-gray-200));
     }
 }
 
+.button-secondary {
+    color: $--button-secondary-color;
+    background-color: $--button-secondary-bg-color;
+    border: none;
+    &:hover:not(:disabled) {
+        background-color: $--button-secondary-hover-bg-color;
+    }
+    &:active:not(:disabled) {
+        background-color: $--button-secondary-pressed-bg-color;
+    }
+}
+
 .button-outline {
-    min-width: $--button-min-width;
     border: 1px solid $--button-outline-border-color;
     color: $--button-outline-color;
     background-color: $--button-outline-bg-color;

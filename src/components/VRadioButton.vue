@@ -1,5 +1,5 @@
 <script setup>
-defineProps({
+const props = defineProps({
     id: {
         type: String,
         required: true
@@ -9,9 +9,11 @@ defineProps({
         required: true
     },
     value: {
-        type: Boolean,
-        required: true,
-        default: false
+        type: Number,
+        required: true
+    },
+    checked: {
+        type: Boolean
     },
     disabled: {
         type: Boolean,
@@ -31,13 +33,7 @@ const handleChange = (event) => {
 <template>
     <div class="radio-button">
         <div class="radio-input">
-            <input
-                type="radio"
-                :name="name"
-                :id="id"
-                v-model="selected"
-                @change="handleChange($event)"
-            />
+            <input type="radio" :name="name" :id="id" :value="value" :checked="checked" />
             <span class="checkmark"></span>
         </div>
         <label :for="id">
@@ -48,6 +44,28 @@ const handleChange = (event) => {
 
 <style lang="scss" scoped>
 @import '@/styles/mixins.scss';
+
+$--label-color: rgb(var(--c-gray-900));
+$--label-required-mark-color: rgb(var(--c-red-500));
+
+$--input-small-height: 32px;
+$--input-small-padding-y: 6px;
+
+$--input-medium-height: 36px;
+$--input-medium-padding-y: 8px;
+
+$--input-large-height: 40px;
+$--input-large-padding-y: 10px;
+
+$--input-padding-x: 12px;
+$--input-border-color: rgb(var(--c-gray-300));
+$--input-placeholder-color: rgb(var(--c-gray-500));
+$--input-hover-bg-color: rgb(var(--c-gray-100));
+$--input-error-border-color: rgb(var(--c-red-500));
+
+$--error-message-color: rgb(var(--c-white));
+$--error-message-bg-color: rgb(var(--c-gray-900));
+
 .radio-button {
     display: flex;
     align-items: center;
@@ -55,6 +73,46 @@ const handleChange = (event) => {
 
 .radio-input {
     display: flex;
+}
+
+input {
+    @include font(14);
+    font-family: var(--font-family-system);
+
+    border-radius: 4px;
+    border: 1px solid $--input-border-color;
+    outline: none;
+
+    &::placeholder {
+        @include font(14);
+        color: $--input-placeholder-color;
+    }
+    &.input-error {
+        border-color: $--input-error-border-color !important;
+        &:hover,
+        &:focus {
+            border-color: $--input-error-border-color !important;
+        }
+    }
+
+    &:not(.input-error):hover {
+        background-color: $--input-hover-bg-color;
+    }
+
+    &:not(.input-error):focus {
+        border-color: rgb(var(--c-primary));
+    }
+
+    &.input-has-icon {
+        padding-right: 32px;
+    }
+}
+
+.icon {
+    position: absolute;
+    top: 50%;
+    right: 8px;
+    transform: translateY(-50%);
 }
 
 /* Styles for default input */
@@ -98,7 +156,6 @@ const handleChange = (event) => {
 .radio-button label {
     display: inline-block;
     padding-left: 8px;
-    user-select: none;
     cursor: pointer;
 }
 </style>

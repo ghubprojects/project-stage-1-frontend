@@ -1,6 +1,5 @@
 <script setup>
 import { IconArrowDown, IconArrowRight, IconBell, IconMenu } from '@/assets/icons';
-import { VImage } from '@/components';
 
 const branchName = 'công ty cổ phần misa';
 const userName = 'tăng thế anh';
@@ -21,7 +20,7 @@ const userName = 'tăng thế anh';
             <IconBell class="bell-icon" />
 
             <div class="current-user">
-                <VImage src="src/assets/images/avatar.jpg" alt="avatar-image" class="avatar-image" />
+                <img src="src/assets/images/avatar.jpg" alt="avatar-image" class="avatar-image" />
                 <div class="name">{{ userName }}</div>
                 <IconArrowDown class="arrow-down-icon" />
             </div>

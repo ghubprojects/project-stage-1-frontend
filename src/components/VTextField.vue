@@ -16,41 +16,19 @@ const props = defineProps({
             return ['full', 'extra-large', 'large', 'medium', 'small', 'extra-small'].includes(val);
         }
     },
-    class: {
-        type: String
-    },
     id: {
         type: String,
         required: true
     },
-    title: {
-        type: String
-    },
-    placeholder: {
-        type: String
-    },
-    value: {
-        type: String,
-        default: null
-    },
-    required: {
-        type: Boolean,
-        default: false
-    },
-    errMsgs: {
-        type: Object
-    },
-    firstFocus: {
-        type: Boolean,
-        default: false
-    },
-    disabled: {
-        type: Boolean,
-        default: false
-    },
-    pattern: {
-        type: RegExp
-    }
+    value: [String, Number],
+    required: Boolean,
+    firstFocus: Boolean,
+    disabled: Boolean,
+    class: String,
+    title: String,
+    placeholder: String,
+    errMsgs: Object,
+    pattern: RegExp
 });
 
 const emit = defineEmits(['textValue']);
@@ -68,7 +46,8 @@ const inputValue = ref(props.value);
 
 // Check empty input
 const isEmpty = computed(() => {
-    return props.required ? !inputValue.value || !inputValue.value.trim() : false;
+    const input = inputValue.value ?? '';
+    return props.required && !String(input).trim();
 });
 
 // Check invalid input

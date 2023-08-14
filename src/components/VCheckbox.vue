@@ -41,6 +41,7 @@ const checked = ref(false);
 .checkbox-input > input[type='checkbox'] {
     margin: 0;
     opacity: 0;
+
     @include size(18px);
     z-index: 3;
     cursor: pointer;
