@@ -42,12 +42,14 @@ const props = defineProps({
     errMsgs: Object
 });
 
+const emit = defineEmits(['update:input']);
+
 // Show label if exists
 const slots = useSlots();
 const hasLabel = slots.label;
 
 // Biến lưu trữ giá trị input.
-const inputValue = ref(props.value ?? 'dd/mm/yyyy');
+const inputValue = ref(props.value ? props.value : 'dd/mm/yyyy');
 
 // Check empty input
 const isEmpty = computed(() =>
@@ -86,7 +88,10 @@ const errorMessage = computed(() => {
  * Khi thay đổi giá trị input,
  * hiển thị những input bị lỗi (viền đỏ) nếu input trống hoặc không hợp lệ.
  */
-const handleChange = () => (showErrorInput.value = true);
+const handleChange = () => {
+    showErrorInput.value = true;
+    emit('update:input', inputValue.value);
+};
 
 /**
  * Khi isEmpty hoặc isInvalid thay đổi, cập nhật lại giá trị showErrorMessage tương ứng.
@@ -141,12 +146,16 @@ const handleDayClick = (day) => {
         day
     );
     inputValue.value = format(selectedDate.value, 'dd/MM/yyyy', { locale: vi });
+    emit('update:input', inputValue.value);
     closeDatePicker();
 };
 
 // Khi click button 'Hôm nay', gán ngày hiện tại vào inputValue
-const handlePickToday = () =>
-    (inputValue.value = format(new Date(), 'dd/MM/yyyy', { locale: vi }));
+const handlePickToday = () => {
+    inputValue.value = format(new Date(), 'dd/MM/yyyy', { locale: vi });
+    emit('update:input', inputValue.value);
+    closeDatePicker();
+};
 
 //regex ký tự khác số
 const nonDigitsRegex = /[^0-9]/g;
@@ -443,6 +452,7 @@ $--change-month-button-hover-bg-color: rgb(var(--c-gray-200));
     z-index: 2;
     top: 38px;
 
+    @include font(14);
     background-color: white;
     border-radius: 4px;
     border: 1px solid $--input-border-color;

@@ -178,17 +178,20 @@
 
 /* Layout variables */
 :root {
-    --header-height: 56px;
     --sidebar-width: 200px;
-    --content-width: calc(100% - var(--sidebar-width));
+    --main-header-height: 56px;
+
+    --main-content-height: calc(100% - var(--main-header-height));
+    --main-content-padding-x: 24px;
+    --main-content-padding-y: 20px;
+    --main-content-header-height: 36px;
+
+    --data-table-height: calc(
+        100% - 2 * var(--main-content-padding-y) - var(--main-content-header-height)
+    );
+    --data-table-header-height: 36px;
+    --data-table-group-table-height: calc(100% - var(--data-table-header-height));
     --table-row-height: 32px;
-
-    --line-height-base: 18px;
-    --line-height-small: 17px;
-
-    --font-size-base: 14px;
-    --font-size-small: 13px;
-    --font-size-extra-small: 12px;
 }
 
 /* semantic variables */

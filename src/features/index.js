@@ -1,3 +1,3 @@
 export { default as DataTable } from './DataTable.vue'
-export { default as EmployeeDetails } from './EmployeeDetails.vue'
+export { default as EmployeeForm } from './EmployeeForm.vue'
 

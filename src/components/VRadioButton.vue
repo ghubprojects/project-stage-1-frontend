@@ -1,5 +1,5 @@
 <script setup>
-const props = defineProps({
+defineProps({
     id: {
         type: String,
         required: true
@@ -21,11 +21,11 @@ const props = defineProps({
     }
 });
 
-const emit = defineEmits(['update:radioValue']);
+const emit = defineEmits(['checkRadio']);
 
 const handleChange = (event) => {
     if (event.target.checked) {
-        emit('update:radioValue', event.target.value);
+        emit('checkRadio', event.target.value);
     }
 };
 </script>
@@ -33,7 +33,14 @@ const handleChange = (event) => {
 <template>
     <div class="radio-button">
         <div class="radio-input">
-            <input type="radio" :name="name" :id="id" :value="value" :checked="checked" />
+            <input
+                type="radio"
+                :name="name"
+                :id="id"
+                :value="value"
+                :checked="checked"
+                @change="handleChange"
+            />
             <span class="checkmark"></span>
         </div>
         <label :for="id">
@@ -106,6 +113,10 @@ input {
     &.input-has-icon {
         padding-right: 32px;
     }
+}
+
+label {
+    @include font(14);
 }
 
 .icon {

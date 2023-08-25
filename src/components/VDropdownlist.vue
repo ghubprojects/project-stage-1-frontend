@@ -1,6 +1,6 @@
 <script setup>
-import { ref, computed, useSlots } from 'vue';
-import { IconArrowDown } from '@/assets/icons';
+import { computed, ref, useSlots, watch } from 'vue';
+import VIcon from './VIcon.vue';
 
 const props = defineProps({
     size: {
@@ -14,7 +14,9 @@ const props = defineProps({
         type: String,
         default: 'medium',
         validator(val) {
-            return ['full', 'extra-large', 'large', 'medium', 'small', 'extra-small'].includes(val);
+            return ['full', 'extra-large', 'large', 'medium', 'small', 'extra-small'].includes(
+                val
+            );
         }
     },
     id: {
@@ -38,9 +40,6 @@ const props = defineProps({
     }
 });
 
-const isOpen = ref(false);
-const selectedValue = ref(props.options[0]);
-
 /**
  * The variable "hasLabel" checks whether a Textfield contains the label or not.
  * If it does, it adds the class 'has-label' to the label tag.
@@ -58,14 +57,43 @@ const inputClass = computed(() => [
     'input-has-icon'
 ]);
 
+const dropdownMenuClass = computed(() => {
+    return ['dropdown-menu', direction.value === 'up' && `position-up-${props.size}`];
+});
+
+// show dropdown
+const isOpening = ref(false);
+const isShow = ref(false);
+const direction = ref('down');
+
+const dropdownListRef = ref(null);
+
+// khi mở dropdown, lấy tọa độ dưới của dropdown menu và bảng dữ liệu,
+// nếu tọa độ dropdown > tọa độ bảng, hiển thị menu theo hướng lên trên
+// ngược lại, hiển thị menu theo hướng xuống dưới
+watch([isOpening], () => {
+    if (
+        dropdownListRef.value.getBoundingClientRect().bottom + 183 >
+        document.documentElement.getBoundingClientRect().bottom - 20
+    )
+        direction.value = 'up';
+    else direction.value = 'down';
+
+    isShow.value = isOpening.value;
+});
+
+const selectedValue = ref(props.options[0]);
+
+// lưu option khi click vào dropdown menu
 const handleOptionClick = (option) => {
     selectedValue.value = option;
-    isOpen.value = false;
+    isOpening.value = false;
+    isShow.value = false;
 };
 </script>
 
 <template>
-    <div class="dropdown-list">
+    <div class="dropdown-list" ref="dropdownListRef">
         <div class="label-group" v-if="hasLabel">
             <label :for="id">
                 <slot name="label"></slot>
@@ -73,7 +101,7 @@ const handleOptionClick = (option) => {
             <span class="required-mark" v-if="required">&nbsp;*</span>
         </div>
 
-        <div class="input-group" @click="isOpen = !isOpen">
+        <div class="input-group" @click="isOpening = !isOpening">
             <input
                 type="text"
                 :id="id"
@@ -83,15 +111,16 @@ const handleOptionClick = (option) => {
                 v-model="selectedValue"
                 readonly
             />
-            <IconArrowDown class="icon" />
+            <div class="icon-arrow-down">
+                <VIcon class="arrow-down-img" />
+            </div>
         </div>
 
-        <div v-if="isOpen" class="dropdown-menu">
+        <div v-if="isShow" :class="dropdownMenuClass">
             <div
                 v-for="(option, index) in options"
                 :key="index"
-                class="dropdown-item"
-                :class="{ selected: selectedValue === option }"
+                :class="['dropdown-item', { selected: selectedValue === option }]"
                 @click="handleOptionClick(option)"
             >
                 {{ option }}
@@ -160,6 +189,7 @@ $--error-message-bg-color: rgb(var(--c-gray-900));
         border-radius: 4px;
         border: 1px solid $--input-border-color;
         outline: none;
+        cursor: pointer;
 
         &::placeholder {
             @include font(13);
@@ -185,20 +215,24 @@ $--error-message-bg-color: rgb(var(--c-gray-900));
             padding-right: 28px;
         }
     }
+    .icon-arrow-down {
+        @include size(14px);
+        filter: brightness(0);
+        transform: rotate(90deg) translateX(-50%) scale(0.8);
 
-    .icon {
         position: absolute;
         top: 50%;
         right: 8px;
-
-        @include size(14px);
-        transform: translateY(-50%) scale(calc(16 / 14));
         cursor: pointer;
+        .arrow-down-img {
+            width: 8px;
+            height: 14px;
+            background-position: -84px -361px;
+        }
     }
 }
 .dropdown-menu {
     position: absolute;
-    bottom: 32px;
     padding: 8px;
 
     display: flex;
@@ -209,17 +243,27 @@ $--error-message-bg-color: rgb(var(--c-gray-900));
     max-height: 200px;
     background-color: rgb(var(--c-white));
     border: 1px solid rgb(var(--c-gray-300));
+
     .dropdown-item {
         padding: 8px;
         border-radius: 4px;
         &:hover {
             background-color: rgb(var(--c-light-green-100));
         }
+        &.selected {
+            background-color: rgb(var(--c-light-green-100));
+        }
     }
 }
 
-.selected {
-    background-color: rgb(var(--c-light-green-100));
+.position-up-large {
+    bottom: $--input-large-height;
+}
+.position-up-medium {
+    bottom: $--input-medium-height;
+}
+.position-up-small {
+    bottom: $--input-small-height;
 }
 
 /* === Width of input === */

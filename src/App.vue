@@ -1,5 +1,9 @@
 <script setup>
 import { TheContent, TheHeader, TheSidebar } from '@/layouts';
+import { VToastMessage } from './components';
+import { useToastMessageStore } from './stores/toastMessage';
+
+const ToastMessage = useToastMessageStore();
 </script>
 
 <template>
@@ -9,6 +13,7 @@ import { TheContent, TheHeader, TheSidebar } from '@/layouts';
             <TheHeader />
             <TheContent />
         </div>
+        <VToastMessage v-if="ToastMessage.isShow" :type="ToastMessage.current.type" />
     </div>
 </template>
 
@@ -18,7 +23,7 @@ import { TheContent, TheHeader, TheSidebar } from '@/layouts';
 #main {
     display: flex;
     #content-container {
-        width: var(--content-width);
+        width: calc(100% - var(--sidebar-width));
         height: 100vh;
     }
 }

@@ -1,6 +1,7 @@
-export const employeeList = [
+export const employeeData = [
     {
-        EmployeeCode: 1001,
+        EmployeeID: 'NV-001',
+        EmployeeCode: '1001',
         FullName: 'John Doe',
         Gender: 0, // 0 for male, 1 for female
         DateOfBirth: '15/05/1985',
@@ -16,10 +17,10 @@ export const employeeList = [
         BankAccount: "987654321",
         BankName: "Example Bank",
         BankBranch: "Hanoi Branch",
-
     },
     {
-        EmployeeCode: 1002,
+        EmployeeID: 'NV-002',
+        EmployeeCode: '1002',
         FullName: 'Jane Smith',
         Gender: 1,
         DateOfBirth: '20/02/1990',
@@ -35,10 +36,10 @@ export const employeeList = [
         BankAccount: "123456789",
         BankName: "Another Bank",
         BankBranch: "HCMC Branch",
-
     },
     {
-        EmployeeCode: 1003,
+        EmployeeID: 'NV-003',
+        EmployeeCode: '1003',
         FullName: 'William Johnson',
         Gender: 0,
         DateOfBirth: '10/09/1988',
@@ -56,7 +57,8 @@ export const employeeList = [
         BankBranch: "Da Nang Branch",
     },
     {
-        EmployeeCode: 1004,
+        EmployeeID: 'NV-004',
+        EmployeeCode: '1004',
         FullName: 'Sarah Johnson',
         Gender: 1,
         DateOfBirth: '12/08/1987',
@@ -74,7 +76,8 @@ export const employeeList = [
         BankBranch: "Can Tho Branch",
     },
     {
-        EmployeeCode: 1005,
+        EmployeeID: 'NV-005',
+        EmployeeCode: '1005',
         FullName: 'Michael Williams',
         Gender: 0,
         DateOfBirth: '18/03/1991',
@@ -92,7 +95,8 @@ export const employeeList = [
         BankBranch: "Haiphong Branch",
     },
     {
-        EmployeeCode: 1006,
+        EmployeeID: 'NV-006',
+        EmployeeCode: '1006',
         FullName: 'Jessica Lee',
         Gender: 1,
         DateOfBirth: '05/12/1989',
@@ -110,7 +114,8 @@ export const employeeList = [
         BankBranch: "Hue Branch",
     },
     {
-        EmployeeCode: 1007,
+        EmployeeID: 'NV-007',
+        EmployeeCode: '1007',
         FullName: 'Amanda Martinez',
         Gender: 1,
         DateOfBirth: '08/09/1992',
@@ -128,7 +133,8 @@ export const employeeList = [
         BankBranch: "Quang Nam Branch",
     },
     {
-        EmployeeCode: 1008,
+        EmployeeID: 'NV-008',
+        EmployeeCode: '1008',
         FullName: 'Daniel Rodriguez',
         Gender: 0,
         DateOfBirth: '14/11/1993',
@@ -146,7 +152,8 @@ export const employeeList = [
         BankBranch: "Vinh Branch",
     },
     {
-        EmployeeCode: 1009,
+        EmployeeID: 'NV-009',
+        EmployeeCode: '1009',
         FullName: 'Olivia Hernandez',
         Gender: 1,
         DateOfBirth: '21/04/1988',
@@ -164,7 +171,8 @@ export const employeeList = [
         BankBranch: "Can Tho Branch",
     },
     {
-        EmployeeCode: 1010,
+        EmployeeID: 'NV-010',
+        EmployeeCode: '1010',
         FullName: 'Ethan Brown',
         Gender: 0,
         DateOfBirth: '30/06/1990',
@@ -182,7 +190,8 @@ export const employeeList = [
         BankBranch: "Da Lat Branch",
     },
     {
-        EmployeeCode: 1011,
+        EmployeeID: 'NV-011',
+        EmployeeCode: '1011',
         FullName: 'Sophia Wilson',
         Gender: 1,
         DateOfBirth: '12/02/1991',
@@ -199,7 +208,8 @@ export const employeeList = [
         BankName: "Global Bank",
         BankBranch: "Danang Branch",
     }, {
-        EmployeeCode: 1012,
+        EmployeeID: 'NV-012',
+        EmployeeCode: '1012',
         FullName: 'Liam Taylor',
         Gender: 0,
         DateOfBirth: '25/09/1987',
@@ -217,7 +227,8 @@ export const employeeList = [
         BankBranch: "Nha Trang Branch",
     },
     {
-        EmployeeCode: 1013,
+        EmployeeID: 'NV-013',
+        EmployeeCode: '1013',
         FullName: 'Isabella Martinez',
         Gender: 1,
         DateOfBirth: '15/04/1994',
@@ -235,7 +246,8 @@ export const employeeList = [
         BankBranch: "Hoi An Branch",
     },
     {
-        EmployeeCode: 1014,
+        EmployeeID: 'NV-014',
+        EmployeeCode: '1014',
         FullName: 'Noah Gonzalez',
         Gender: 0,
         DateOfBirth: '08/11/1989',
@@ -253,7 +265,8 @@ export const employeeList = [
         BankBranch: "Hue Branch",
     },
     {
-        EmployeeCode: 1015,
+        EmployeeID: 'NV-015',
+        EmployeeCode: '1015',
         FullName: 'Emma Rodriguez',
         Gender: 1,
         DateOfBirth: '20/06/1992',
@@ -271,7 +284,8 @@ export const employeeList = [
         BankBranch: "Phu Quoc Branch",
     },
     {
-        EmployeeCode: 1016,
+        EmployeeID: 'NV-016',
+        EmployeeCode: '1016',
         FullName: 'Oliver Smith',
         Gender: 0,
         DateOfBirth: '12/01/1995',
@@ -288,7 +302,8 @@ export const employeeList = [
         BankName: "Example Bank",
         BankBranch: "Hanoi Branch",
     }, {
-        EmployeeCode: 1017,
+        EmployeeID: 'NV-017',
+        EmployeeCode: '1017',
         FullName: 'Sophia Johnson',
         Gender: 1,
         DateOfBirth: '18/03/1990',
@@ -306,7 +321,8 @@ export const employeeList = [
         BankBranch: "HCMC Branch",
     },
     {
-        EmployeeCode: 1018,
+        EmployeeID: 'NV-018',
+        EmployeeCode: '1018',
         FullName: 'Jackson Williams',
         Gender: 0,
         DateOfBirth: '29/11/1988',
@@ -324,7 +340,8 @@ export const employeeList = [
         BankBranch: "Da Nang Branch",
     },
     {
-        EmployeeCode: 1019,
+        EmployeeID: 'NV-019',
+        EmployeeCode: '1019',
         FullName: 'David Garcia',
         Gender: 0,
         DateOfBirth: '29/07/1986',
@@ -341,7 +358,8 @@ export const employeeList = [
         BankName: "Global Bank",
         BankBranch: "Can Tho Branch",
     }, {
-        EmployeeCode: 1020,
+        EmployeeID: 'NV-020',
+        EmployeeCode: '1020',
         FullName: 'Emily Brown',
         Gender: 1,
         DateOfBirth: '25/06/1993',

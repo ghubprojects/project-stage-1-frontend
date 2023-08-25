@@ -1,21 +1,15 @@
 <script setup>
-import { ref } from 'vue';
-defineProps({
-    id: {
-        type: String,
-        required: true
-    },
-    label: {
-        type: String
-    }
+const props = defineProps({
+    id: String,
+    label: String,
+    checked: Boolean
 });
-const checked = ref(false);
 </script>
 
 <template>
     <div class="checkbox">
         <div class="checkbox-input">
-            <input type="checkbox" :id="id" v-model="checked" />
+            <input type="checkbox" :id="id" :checked="props.checked" />
             <span class="checkmark"></span>
         </div>
         <label :for="id" v-if="label">{{ label }}</label>

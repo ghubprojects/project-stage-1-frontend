@@ -37,7 +37,7 @@ const logoSrc = 'src/assets/images/logo.svg';
     display: flex;
     gap: 20px;
     align-items: center;
-    height: var(--header-height);
+    height: var(--main-header-height);
     cursor: pointer;
     .option-icon {
         @include size(24px);
@@ -55,7 +55,9 @@ const logoSrc = 'src/assets/images/logo.svg';
     gap: 4px;
 
     width: var(--sidebar-width);
-    height: calc(100vh - var(--header-height));
+    max-height: calc(100vh - var(--main-header-height));
+    height: 100%;
     overflow-y: overlay;
 }
 </style>
+@/helpers/menuItemList

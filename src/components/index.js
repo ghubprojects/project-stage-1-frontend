@@ -8,4 +8,5 @@ export { default as VIcon } from './VIcon.vue'
 export { default as VRadioButton } from './VRadioButton.vue'
 export { default as VRadioField } from './VRadioField.vue'
 export { default as VTextField } from './VTextField.vue'
+export { default as VToastMessage } from './VToastMessage.vue'
 

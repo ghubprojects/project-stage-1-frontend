@@ -1,8 +1,6 @@
-import { VCheckbox } from '@/components';
 export const tableColumns = [
     {
         name: 'employee-check',
-        content: VCheckbox,
         width: 'extra-small',
     },
     {

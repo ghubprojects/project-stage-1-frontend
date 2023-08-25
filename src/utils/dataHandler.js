@@ -3,6 +3,8 @@
  */
 import { Gender } from './enums';
 
+// hiển thị giới tính phụ thuộc vào genderNumber,
+// 0 là Nam, 1 là Nữ, 2 là Khác, các giá trị khác là không hợp lệ
 export const getGender = (genderNumber) => {
     if (genderNumber === null) return '';
     switch (genderNumber) {
@@ -17,6 +19,7 @@ export const getGender = (genderNumber) => {
     }
 };
 
+// 
 export const getDate = (date) => {
     if (date) return '';
     const dateObj = new Date(date);

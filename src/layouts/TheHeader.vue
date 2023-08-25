@@ -1,5 +1,5 @@
 <script setup>
-import { IconArrowDown, IconArrowRight, IconBell, IconMenu } from '@/assets/icons';
+import { VIcon } from '@/components';
 
 const branchName = 'công ty cổ phần misa';
 const userName = 'tăng thế anh';
@@ -8,21 +8,33 @@ const userName = 'tăng thế anh';
 <template>
     <header id="header">
         <div class="left-column">
-            <IconMenu class="menu-icon" />
+            <div class="icon-menu">
+                <VIcon class="menu-img" />
+            </div>
 
             <div class="branch">
                 <div class="name">{{ branchName }}</div>
-                <IconArrowRight class="arrow-right-icon" />
+                <div class="icon-arrow-down">
+                    <VIcon class="arrow-down-img" />
+                </div>
             </div>
         </div>
 
         <div class="right-column">
-            <IconBell class="bell-icon" />
+            <div class="icon-bell">
+                <VIcon class="bell-img" />
+            </div>
 
             <div class="current-user">
-                <img src="src/assets/images/avatar.jpg" alt="avatar-image" class="avatar-image" />
+                <img
+                    src="src/assets/images/avatar.jpg"
+                    alt="avatar-image"
+                    class="avatar-image"
+                />
                 <div class="name">{{ userName }}</div>
-                <IconArrowDown class="arrow-down-icon" />
+                <div class="icon-arrow-down">
+                    <VIcon class="arrow-down-img" />
+                </div>
             </div>
         </div>
     </header>
@@ -32,7 +44,7 @@ const userName = 'tăng thế anh';
 @import '@/styles/mixins.scss';
 /* === Styles for header === */
 #header {
-    height: var(--header-height);
+    height: var(--main-header-height);
     display: flex;
     padding: 12px 16px;
     justify-content: space-between;
@@ -42,32 +54,49 @@ const userName = 'tăng thế anh';
 #header .left-column {
     display: flex;
     gap: 16px;
-    .menu-icon {
+    .icon-menu {
         @include size(24px);
         cursor: pointer;
+        .menu-img {
+            width: 16px;
+            height: 14px;
+            background-position: -847px -35px;
+        }
     }
     .branch {
         display: flex;
-        gap: 10px;
         align-items: center;
+        gap: 8px;
         cursor: pointer;
         .name {
             font-weight: 500;
             text-transform: uppercase;
         }
-        .arrow-right-icon {
+
+        .icon-arrow-down {
             @include size(14px);
             transform: rotate(90deg);
+            filter: brightness(0);
+            .arrow-down-img {
+                width: 8px;
+                height: 14px;
+                background-position: -84px -361px;
+            }
         }
     }
 }
 #header .right-column {
     display: flex;
     align-items: center;
-    .bell-icon {
-        margin-right: 26px;
+    .icon-bell {
+        margin-right: 24px;
         @include size(24px);
         cursor: pointer;
+        .bell-img {
+            width: 22px;
+            height: 25px;
+            background-position: -788px -30px;
+        }
     }
     .current-user {
         display: flex;
@@ -82,8 +111,15 @@ const userName = 'tăng thế anh';
             font-weight: 500;
             text-transform: capitalize;
         }
-        .arrow-down-icon {
+        .icon-arrow-down {
             @include size(14px);
+            transform: rotate(90deg);
+            filter: brightness(0);
+            .arrow-down-img {
+                width: 8px;
+                height: 14px;
+                background-position: -84px -361px;
+            }
         }
     }
 }

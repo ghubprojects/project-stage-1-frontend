@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted, useSlots, watch } from 'vue';
+import { computed, onMounted, ref, useSlots, watch } from 'vue';
 
 const props = defineProps({
     size: {
@@ -13,12 +13,18 @@ const props = defineProps({
         type: String,
         default: 'medium',
         validator(val) {
-            return ['full', 'extra-large', 'large', 'medium', 'small', 'extra-small'].includes(val);
+            return ['full', 'extra-large', 'large', 'medium', 'small', 'extra-small'].includes(
+                val
+            );
         }
     },
     id: {
         type: String,
         required: true
+    },
+    tooltip: {
+        type: Boolean,
+        default: true
     },
     value: [String, Number],
     required: Boolean,
@@ -31,7 +37,7 @@ const props = defineProps({
     pattern: RegExp
 });
 
-const emit = defineEmits(['textValue']);
+const emit = defineEmits(['update:input', 'addErrorMessage', 'removeErrorMessage']);
 
 /**
  * Biến hasLabel và hasIcon kiểm tra xem Textfield có label và icon không.
@@ -41,13 +47,23 @@ const slots = useSlots();
 const hasLabel = slots.label;
 const hasIcon = slots.icon;
 
-// Biến lưu trữ giá trị input.
+const inputRef = ref(null);
 const inputValue = ref(props.value);
 
+// when mounted, focus the first input
+onMounted(() => {
+    if (props.firstFocus) inputRef.value.focus();
+});
+
+// overflow text
+const isOverflowInput = ref(false);
+
+/**
+ * === CHỨC NĂNG VALIDATE INPUT ===
+ */
 // Check empty input
 const isEmpty = computed(() => {
-    const input = inputValue.value ?? '';
-    return props.required && !String(input).trim();
+    return props.required && (!inputValue.value || !inputValue.value.trim());
 });
 
 // Check invalid input
@@ -55,19 +71,7 @@ const isInvalid = computed(() => {
     return props.pattern && !props.pattern.test(inputValue.value);
 });
 
-/**
- * Dựa vào props size và width được truyền vào,
- * gán custom class để style cho mỗi size và width của input tương ứng.
- */
-const showErrorInput = ref(false);
-const inputClass = computed(() => [
-    `input-${props.size}`,
-    `input-width-${props.width}`,
-    { 'input-has-icon': hasIcon },
-    { 'input-error': showErrorInput.value && (isEmpty.value || isInvalid.value) },
-    props.class
-]);
-
+// trả về thông báo lỗi dựa vào isEmpty / isInvalid
 const errorMessage = computed(() => {
     if (isEmpty.value) {
         return props.errMsgs.isEmpty;
@@ -83,21 +87,55 @@ const errorMessage = computed(() => {
  * cho phép có thể hiển thị errorMessage nếu input trống hoặc không hợp lệ.
  * Emit dữ liệu inputValue lên TablePopup component.
  */
-const handleChange = () => {
-    showErrorInput.value = true;
-    emit('textValue', inputValue.value);
+const showErrorInput = ref(false);
+const showErrorMessage = ref(false);
+const handleInput = (event) => {
+    emit('update:input', event.target.value);
+    inputValue.value = String(inputRef.value.value);
+
+    if (isEmpty.value || isInvalid.value) {
+        showErrorInput.value = true;
+        showErrorMessage.value = true;
+    }
+
+    // nếu input vượt quá width, gán isOverflowInput = true để hiển thị tooltip khi hover.
+    if (inputRef.value.scrollWidth > inputRef.value.clientWidth) isOverflowInput.value = true;
+    else isOverflowInput.value = false;
 };
 
-const showErrorMessage = ref(false);
+//Khi thay đổi giá trị input, emit event addErrorMessage và thông báo lỗi
+const handleChange = () => {
+    if (props.errMsgs) {
+        emit('removeErrorMessage', props.errMsgs.isEmpty);
+        emit('removeErrorMessage', props.errMsgs.isInvalid);
+        if (errorMessage.value) emit('addErrorMessage', errorMessage.value);
+    }
+};
+
+onMounted(() => {
+    if (props.errMsgs) {
+        emit('removeErrorMessage', props.errMsgs.isEmpty);
+        emit('removeErrorMessage', props.errMsgs.isInvalid);
+        if (errorMessage.value) emit('addErrorMessage', errorMessage.value);
+    }
+});
+
+// nếu trạng thái isEmpty / isInvalid thay đổi, thay đổi giá trị showErrorMessage
 watch([isEmpty, isInvalid], () => (showErrorMessage.value = isEmpty.value || isInvalid.value));
 
+/**
+ * Dựa vào props size và width được truyền vào,
+ * gán custom class để style cho mỗi size và width của input tương ứng.
+ */
 const inputGroupClass = computed(() => ['input-group', `input-width-${props.width}`]);
-
-// when mounted, focus the first input
-const inputRef = ref(null);
-onMounted(() => {
-    if (props.firstFocus) inputRef.value.focus();
-});
+const inputClass = computed(() => [
+    `input-${props.size}`,
+    `input-width-${props.width}`,
+    { 'input-has-icon': hasIcon },
+    { 'input-error': showErrorInput.value && (isEmpty.value || isInvalid.value) },
+    { 'input-overflow': props.tooltip && isOverflowInput.value },
+    props.class
+]);
 </script>
 
 <template>
@@ -115,7 +153,8 @@ onMounted(() => {
                 :placeholder="placeholder"
                 :disabled="disabled"
                 :class="inputClass"
-                v-model="inputValue"
+                :value="inputValue"
+                @input="handleInput($event)"
                 @change="handleChange"
                 ref="inputRef"
             />
@@ -123,8 +162,8 @@ onMounted(() => {
                 <slot name="icon"></slot>
             </i>
         </div>
-        <span class="error-message" v-if="showErrorMessage">
-            {{ errorMessage }}
+        <span class="tooltip" v-if="showErrorMessage || (tooltip && isOverflowInput)">
+            {{ errorMessage ? errorMessage : inputValue }}
         </span>
     </div>
 </template>
@@ -187,6 +226,7 @@ $--error-message-bg-color: rgb(var(--c-gray-900));
     input {
         @include font(14);
         font-family: var(--font-family-system);
+        text-overflow: ellipsis;
 
         border-radius: 4px;
         border: 1px solid $--input-border-color;
@@ -226,12 +266,13 @@ $--error-message-bg-color: rgb(var(--c-gray-900));
     }
 }
 
-/* Style error message */
-.error-message {
+/* Style tooltip */
+.tooltip {
     position: absolute;
     left: 16px;
-    bottom: -16px;
     display: none;
+    top: 52px;
+    z-index: 5;
 
     @include font(12);
     padding: 4px;
@@ -240,6 +281,9 @@ $--error-message-bg-color: rgb(var(--c-gray-900));
     background-color: $--error-message-bg-color;
 
     .input-group:has(.input-error:hover) + & {
+        display: flex;
+    }
+    .input-group:has(.input-overflow:hover) + & {
         display: flex;
     }
 }

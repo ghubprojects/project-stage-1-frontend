@@ -9,16 +9,17 @@ const iconClass = computed(() => ['icon', props.class]);
 </script>
 
 <template>
-    <i :class="iconClass"></i>
+    <div :class="iconClass"></div>
 </template>
 
 <style lang="scss" scoped>
 @import '@/styles/mixins.scss';
 
-$--icon-size-default: 24px;
+$--icon-size-default: 20px;
 .icon {
-    @include centerAbsolute();
     @include size($--icon-size-default);
+    @include centerAbsolute();
+    display: inline-block;
     background: url('@/assets/images/sprites.svg') no-repeat;
 }
 </style>

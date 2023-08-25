@@ -1,35 +1,34 @@
 <script setup>
-import { VButton } from '@/components';
 import { IconClose } from '@/assets/icons';
-import IconWarning from '@/assets/icons/IconWarning.vue';
+import { VIcon } from '@/components';
+import { useDialogStore } from '@/stores/dialog';
 
-const emit = defineEmits(['closeDialog']);
+const Dialog = useDialogStore();
 </script>
 
 <template>
     <div class="dialog">
         <div class="dialog-container">
             <div class="dialog-wrapper">
-                <IconWarning class="warning-icon" />
-                <div class="dialog-content">
-                    <div class="dialog-header">
-                        <div class="heading heading-1">Cảnh báo</div>
-                        <IconClose class="close-icon" @click="emit('closeDialog')" />
+                <div class="dialog-header">
+                    <div class="heading-1">
+                        <slot name="title"></slot>
                     </div>
-                    <div class="dialog-description">
-                        Mã nhân viên &lt;1001&gt; đã tồn tại trong hệ thống, vui lòng kiểm tra lại.
+
+                    <IconClose class="close-icon" @click="Dialog.hide" />
+                </div>
+                <div class="dialog-content">
+                    <div class="icon-warning">
+                        <VIcon class="warning-img" />
+                    </div>
+                    <div class="dialog-text">
+                        <slot name="text"></slot>
                     </div>
                 </div>
             </div>
             <div class="dialog-footer">
-                <VButton
-                    size="medium"
-                    type="primary"
-                    class="agree-button"
-                    @click="emit('closeDialog')"
-                >
-                    Đồng ý
-                </VButton>
+                <slot name="secondaryAction"></slot>
+                <slot name="primaryAction"></slot>
             </div>
         </div>
     </div>
@@ -46,7 +45,7 @@ const emit = defineEmits(['closeDialog']);
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 50;
+    z-index: 100;
     background-color: var(--modal-background);
 }
 
@@ -55,27 +54,33 @@ const emit = defineEmits(['closeDialog']);
     width: 100%;
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    gap: 20px;
     padding: 24px;
     border-radius: 4px;
     background-color: rgb(var(--c-white));
     .dialog-wrapper {
         display: flex;
-        align-items: center;
-        justify-content: space-between;
+        flex-direction: column;
+        justify-content: center;
+        gap: 24px;
     }
 }
 
-.warning-icon {
-    @include size(60px);
-    color: rgb(var(--c-red-400));
-}
-
 .dialog-content {
-    max-width: 348px;
     display: flex;
-    flex-direction: column;
-    gap: 24px;
+    align-items: center;
+    gap: 20px;
+    .icon-warning {
+        @include size(40px);
+        .warning-img {
+            width: 36px;
+            height: 37px;
+            background-position: -598px -463px;
+        }
+    }
+    .dialog-text {
+        @include font(14);
+    }
 }
 
 .dialog-header {
@@ -93,5 +98,6 @@ const emit = defineEmits(['closeDialog']);
 .dialog-footer {
     display: flex;
     justify-content: flex-end;
+    gap: 8px;
 }
 </style>

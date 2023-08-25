@@ -6,7 +6,7 @@ const props = defineProps({
         type: String,
         default: 'primary',
         validator(val) {
-            return ['primary', 'secondary', 'outline'].includes(val);
+            return ['primary', 'secondary', 'outline', 'icon'].includes(val);
         }
     },
     size: {
@@ -14,6 +14,13 @@ const props = defineProps({
         default: 'medium',
         validator(val) {
             return ['extra-large', 'large', 'medium', 'small'].includes(val);
+        }
+    },
+    colorScheme: {
+        type: String,
+        default: 'primary',
+        validator(val) {
+            return ['primary', 'red'].includes(val);
         }
     },
     disabled: Boolean
@@ -33,6 +40,7 @@ const isDisabled = computed(() => props.disabled);
 
 <template>
     <button :class="buttonClass" :disabled="isDisabled">
+        <slot name="icon"></slot>
         <slot></slot>
     </button>
 </template>
@@ -67,9 +75,15 @@ $--button-secondary-pressed-bg-color: rgb(var(--c-gray-200));
 
 $--button-outline-color: rgb(var(--c-gray-900));
 $--button-outline-bg-color: rgb(var(--c-white));
-$--button-outline-border-color: rgb(var(--c-gray-400));
+$--button-outline-border-color: rgb(var(--c-gray-300));
 $--button-outline-hover-bg-color: rgb(var(--c-gray-100));
 $--button-outline-pressed-bg-color: rgb(var(--c-gray-200));
+
+$--button-icon-color: rgb(var(--c-green-500));
+$--button-icon-bg-color: rgb(var(--c-light-green-100));
+$--button-icon-pressed-bg-color: rgb(var(--c-green-500));
+$--button-icon-padding-x: 10px;
+$--button-icon-padding-y: 8px;
 
 .button-small {
     height: $--button-small-height;
@@ -96,14 +110,18 @@ $--button-outline-pressed-bg-color: rgb(var(--c-gray-200));
     display: flex;
     justify-content: center;
     align-items: center;
-
     border-radius: 4px;
-    min-width: $--button-min-width;
 
     @include font(14);
     font-family: var(--font-family-system);
     font-weight: 500;
+
+    outline: none;
     cursor: pointer;
+
+    &:not(.button-icon) {
+        min-width: $--button-min-width;
+    }
 }
 
 .button-primary {
@@ -139,6 +157,16 @@ $--button-outline-pressed-bg-color: rgb(var(--c-gray-200));
     }
     &:active:not(:disabled) {
         background-color: $--button-outline-pressed-bg-color;
+    }
+}
+
+.button-icon {
+    padding: $--button-icon-padding-y $--button-icon-padding-x !important;
+    color: $--button-icon-color;
+    background-color: $--button-icon-bg-color;
+    border: none;
+    &:active:not(:disabled) {
+        background-color: $--button-icon-pressed-bg-color;
     }
 }
 
