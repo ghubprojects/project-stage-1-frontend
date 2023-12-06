@@ -2,20 +2,18 @@
 @import './variables.scss';
 @import './mixins.scss';
 
+// custom scrollbar
 ::-webkit-scrollbar {
-    border-radius: 0;
-    width: 8px;
-    height: 8px;
+    width: var(--scroll-bar-width);
+    height: var(--scroll-bar-height);
 }
 
 ::-webkit-scrollbar-thumb {
-    border-radius: 4px;
-    background-color: rgba(0, 0, 0, 0.15);
+    background-color: rgb(var(--c-gray-300));
 }
 
 ::-webkit-scrollbar-track {
-    border-radius: 0;
-    background-color: rgba(0, 0, 0, 0);
+    background-color: rgb(var(--c-gray-100));
 }
 
 body {
@@ -26,12 +24,17 @@ body {
     overflow: hidden;
 }
 
-/* Use mixins */
+// Use mixins
 @import './mixins.scss';
 
-/* Styles for text */
+// Styles for text
 .heading-1 {
     @include font(20, 700);
+}
+
+// Styles for cursor
+.not-allowed-cursor {
+    cursor: not-allowed !important;
 }
 
 /* Reset CSS */

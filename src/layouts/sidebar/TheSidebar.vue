@@ -1,7 +1,11 @@
 <script setup>
 import { IconOption } from '@/assets/icons';
-import { menuItemList } from '@/utils/menuItemList';
+import { menuItemList } from '@/utils/menuitem';
 import SidebarItem from './SidebarItem.vue';
+import { MenuItemResources } from '@/resources';
+import { useLanguageStore } from '@/stores';
+
+const Language = useLanguageStore();
 
 // logo image path
 const logoSrc = 'src/assets/images/logo.svg';
@@ -18,7 +22,7 @@ const logoSrc = 'src/assets/images/logo.svg';
                 v-for="(menuItem, index) in menuItemList"
                 :key="index"
                 :icon="menuItem.icon"
-                :title="menuItem.title"
+                :title="MenuItemResources[Language.current][menuItem.title]"
             />
         </div>
     </div>
@@ -60,4 +64,3 @@ const logoSrc = 'src/assets/images/logo.svg';
     overflow-y: overlay;
 }
 </style>
-@/helpers/menuItemList

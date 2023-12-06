@@ -170,39 +170,37 @@
     --line-height-20: 26px;
 }
 
-/* Semantic color variables */
+/* semantic color variables */
 :root {
     --c-primary: var(--c-green-500);
     --modal-background: rgba(0, 0, 0, 0.4);
+
+    --c-toast-msg-success: var(--c-primary);
+    --c-toast-msg-error: #de3618;
+    --c-toast-msg-warning: #f49342;
+    --c-toast-msg-info: #009eeb;
 }
 
-/* Layout variables */
+/* layout variables */
 :root {
+    --scroll-bar-width: 10px;
+    --scroll-bar-height: 10px;
+
     --sidebar-width: 200px;
     --main-header-height: 56px;
 
     --main-content-height: calc(100% - var(--main-header-height));
     --main-content-padding-x: 24px;
-    --main-content-padding-y: 20px;
+    --main-content-padding-top: 20px;
+    --main-content-padding-bottom: 24px;
     --main-content-header-height: 36px;
 
-    --data-table-height: calc(
-        100% - 2 * var(--main-content-padding-y) - var(--main-content-header-height)
-    );
+    --data-table-height: calc(100% - var(--main-content-header-height));
     --data-table-header-height: 36px;
-    --data-table-group-table-height: calc(100% - var(--data-table-header-height));
+    --table-pagination-height: 56px;
+    --data-table-group-table-height: calc(
+        100% - var(--data-table-header-height) - var(--table-pagination-height) +
+            var(--scroll-bar-size)
+    );
     --table-row-height: 32px;
-}
-
-/* semantic variables */
-:root {
-    --sidebar-width-expand: 200px;
-    --sidebar-width-collapse: 56px;
-
-    --navbar-height: 56px;
-
-    --main-content-padding-top: 24px;
-    --main-content-padding-left: 24px;
-
-    --separator: 200, 200, 200;
 }

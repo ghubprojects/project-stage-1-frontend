@@ -1,5 +1,6 @@
 <script setup>
-import { computed, onMounted, ref, useSlots, watch } from 'vue';
+import { EmployeeFields } from '@/utils/enum';
+import { computed, onMounted, ref, useSlots, watch, onUpdated } from 'vue';
 
 const props = defineProps({
     size: {
@@ -13,9 +14,15 @@ const props = defineProps({
         type: String,
         default: 'medium',
         validator(val) {
-            return ['full', 'extra-large', 'large', 'medium', 'small', 'extra-small'].includes(
-                val
-            );
+            return [
+                'full',
+                'extra-extra-large',
+                'extra-large',
+                'large',
+                'medium',
+                'small',
+                'extra-small'
+            ].includes(val);
         }
     },
     id: {
@@ -26,13 +33,16 @@ const props = defineProps({
         type: Boolean,
         default: true
     },
+    label: String,
     value: [String, Number],
     required: Boolean,
+    maxLength: Number,
     firstFocus: Boolean,
     disabled: Boolean,
     class: String,
     title: String,
     placeholder: String,
+    showError: Boolean,
     errMsgs: Object,
     pattern: RegExp
 });
@@ -40,60 +50,96 @@ const props = defineProps({
 const emit = defineEmits(['update:input', 'addErrorMessage', 'removeErrorMessage']);
 
 /**
- * Biến hasLabel và hasIcon kiểm tra xem Textfield có label và icon không.
- * Nếu có, thêm class 'has-label' cho label tag và 'has-icon' cho input tag.
+ * Biến hasIcon kiểm tra xem Textfield có icon không.
+ * Nếu có, thêm class 'has-icon' cho input tag.
  */
 const slots = useSlots();
-const hasLabel = slots.label;
 const hasIcon = slots.icon;
 
 const inputRef = ref(null);
 const inputValue = ref(props.value);
 
-// when mounted, focus the first input
+/**
+ * Khi mounted, nếu field có prop firstFocus, focus và select input text
+ * Created by: ttanh (20/08/2023)
+ * Modified by: ttanh (27/09/2023)
+ */
 onMounted(() => {
-    if (props.firstFocus) inputRef.value.focus();
+    if (props.firstFocus || props.id === EmployeeFields.EmployeeCode) {
+        inputRef.value.focus();
+        inputRef.value.select();
+    }
 });
 
-// overflow text
-const isOverflowInput = ref(false);
+/**
+ * Khi updated, nếu field có prop firstFocus, focus input text
+ * Created by: ttanh (08/10/2023)
+ */
+onUpdated(() => {
+    if (props.firstFocus) {
+        inputRef.value.focus();
+    }
+});
+
+/**
+ * Khi focus input, select input đó
+ * Created by: ttanh (28/09/2023)
+ */
+const selectText = () => {
+    inputRef.value.select();
+};
 
 /**
  * === CHỨC NĂNG VALIDATE INPUT ===
  */
-// Check empty input
+// Flag kiểm tra input rỗng
 const isEmpty = computed(() => {
     return props.required && (!inputValue.value || !inputValue.value.trim());
 });
 
-// Check invalid input
+// Flag kiểm tra input không hợp lệ
 const isInvalid = computed(() => {
     return props.pattern && !props.pattern.test(inputValue.value);
 });
 
-// trả về thông báo lỗi dựa vào isEmpty / isInvalid
+// Flag kiểm tra input vượt quá max length
+const isOverflow = computed(() => {
+    return inputValue.value && inputValue.value.length === props.maxLength;
+});
+
+// Thông báo lỗi tương ứng với isEmpty / isInvalid
 const errorMessage = computed(() => {
     if (isEmpty.value) {
         return props.errMsgs.isEmpty;
     } else if (isInvalid.value) {
         return props.errMsgs.isInvalid;
+    } else if (isOverflow.value) {
+        return props.errMsgs.isOverflow;
     } else {
         return '';
     }
 });
 
+// Flag kiểm tra khi độ dài input text lớn hơn width
+const isOverflowInput = ref(false);
+
+const showErrorInput = ref(props.showError);
+const showErrorMessage = ref(props.showError);
+
 /**
- * Khi thay đổi giá trị input,
- * cho phép có thể hiển thị errorMessage nếu input trống hoặc không hợp lệ.
- * Emit dữ liệu inputValue lên TablePopup component.
+ * Emit dữ liệu input.
+ * Khi input được nhập, hiển thị errorMessage nếu input trống hoặc không hợp lệ.
+ * Created by: ttanh (12/08/2023)
  */
-const showErrorInput = ref(false);
-const showErrorMessage = ref(false);
 const handleInput = (event) => {
+    if (event.target.value.length > props.maxLength) {
+        event.target.value = event.target.value.substring(0, props.maxLength);
+    }
+
     emit('update:input', event.target.value);
     inputValue.value = String(inputRef.value.value);
 
-    if (isEmpty.value || isInvalid.value) {
+    if (isEmpty.value || isInvalid.value || isOverflow.value) {
         showErrorInput.value = true;
         showErrorMessage.value = true;
     }
@@ -103,25 +149,32 @@ const handleInput = (event) => {
     else isOverflowInput.value = false;
 };
 
-//Khi thay đổi giá trị input, emit event addErrorMessage và thông báo lỗi
-const handleChange = () => {
+/**
+ * Cập nhật thông báo lỗi validate
+ */
+const updateErrorMessage = () => {
     if (props.errMsgs) {
-        emit('removeErrorMessage', props.errMsgs.isEmpty);
-        emit('removeErrorMessage', props.errMsgs.isInvalid);
-        if (errorMessage.value) emit('addErrorMessage', errorMessage.value);
+        emit('removeErrorMessage', props.id);
+        if (errorMessage.value)
+            emit('addErrorMessage', { id: props.id, message: errorMessage.value, focus: false });
     }
 };
 
+//Khi thay đổi giá trị input, emit event addErrorMessage và thông báo lỗi
+const handleChange = () => {
+    updateErrorMessage();
+};
+
+// Khi mounted, reset thông báo lỗi
 onMounted(() => {
-    if (props.errMsgs) {
-        emit('removeErrorMessage', props.errMsgs.isEmpty);
-        emit('removeErrorMessage', props.errMsgs.isInvalid);
-        if (errorMessage.value) emit('addErrorMessage', errorMessage.value);
-    }
+    updateErrorMessage();
 });
 
 // nếu trạng thái isEmpty / isInvalid thay đổi, thay đổi giá trị showErrorMessage
-watch([isEmpty, isInvalid], () => (showErrorMessage.value = isEmpty.value || isInvalid.value));
+watch(
+    [isEmpty, isInvalid, isOverflow],
+    () => (showErrorMessage.value = isEmpty.value || isInvalid.value || isOverflow.value)
+);
 
 /**
  * Dựa vào props size và width được truyền vào,
@@ -132,7 +185,10 @@ const inputClass = computed(() => [
     `input-${props.size}`,
     `input-width-${props.width}`,
     { 'input-has-icon': hasIcon },
-    { 'input-error': showErrorInput.value && (isEmpty.value || isInvalid.value) },
+    {
+        'input-error':
+            showErrorInput.value && (isEmpty.value || isInvalid.value || isOverflow.value)
+    },
     { 'input-overflow': props.tooltip && isOverflowInput.value },
     props.class
 ]);
@@ -140,9 +196,9 @@ const inputClass = computed(() => [
 
 <template>
     <div class="textfield">
-        <div class="label-group" v-if="hasLabel">
+        <div class="label-group" v-if="label">
             <label :for="id" :title="title">
-                <slot name="label"></slot>
+                {{ label }}
             </label>
             <span class="required-mark" v-if="required">&nbsp;*</span>
         </div>
@@ -156,6 +212,7 @@ const inputClass = computed(() => [
                 :value="inputValue"
                 @input="handleInput($event)"
                 @change="handleChange"
+                @focus="selectText"
                 ref="inputRef"
             />
             <i class="icon" v-if="hasIcon">
@@ -291,6 +348,10 @@ $--error-message-bg-color: rgb(var(--c-gray-900));
 /* === Width of input === */
 .input-width-full {
     width: 100%;
+}
+
+.input-width-extra-extra-large {
+    width: 320px;
 }
 
 .input-width-extra-large {

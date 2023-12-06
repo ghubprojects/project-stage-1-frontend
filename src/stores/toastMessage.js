@@ -1,6 +1,9 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 
+/**
+ * Quản lý thông báo toast message
+ */
 export const useToastMessageStore = defineStore('toastMessageState', () => {
     const isShow = ref(false)
     const init = {

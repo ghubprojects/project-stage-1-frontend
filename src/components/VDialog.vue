@@ -1,7 +1,27 @@
 <script setup>
-import { IconClose } from '@/assets/icons';
-import { VIcon } from '@/components';
+import { IconClose, IconDialogWarning } from '@/assets/icons';
 import { useDialogStore } from '@/stores/dialog';
+import VButton from './VButton.vue';
+
+defineProps({
+    data: Object,
+    title: String,
+    text: String,
+    secondaryText: String,
+    primaryText: {
+        type: String,
+        required: true
+    },
+    colorScheme: {
+        type: String,
+        default: 'primary',
+        validator(val) {
+            return ['primary', 'red'].includes(val);
+        }
+    }
+});
+
+const emit = defineEmits(['handlePrimary', 'handleSecondary']);
 
 const Dialog = useDialogStore();
 </script>
@@ -11,24 +31,27 @@ const Dialog = useDialogStore();
         <div class="dialog-container">
             <div class="dialog-wrapper">
                 <div class="dialog-header">
-                    <div class="heading-1">
-                        <slot name="title"></slot>
-                    </div>
-
+                    <div class="heading-1">{{ title ?? data.title }}</div>
                     <IconClose class="close-icon" @click="Dialog.hide" />
                 </div>
                 <div class="dialog-content">
-                    <div class="icon-warning">
-                        <VIcon class="warning-img" />
-                    </div>
-                    <div class="dialog-text">
-                        <slot name="text"></slot>
-                    </div>
+                    <IconDialogWarning class="icon-warning" />
+                    <div class="dialog-text">{{ text ?? data.text }}</div>
                 </div>
             </div>
             <div class="dialog-footer">
-                <slot name="secondaryAction"></slot>
-                <slot name="primaryAction"></slot>
+                <VButton v-if="secondaryText" type="outline" @click="emit('handleSecondary')" focus>
+                    {{ secondaryText }}
+                </VButton>
+                <VButton
+                    type="primary"
+                    :colorScheme="colorScheme"
+                    @click="emit('handlePrimary')"
+                    @keydown.tab="$event.preventDefault()"
+                    :focus="!secondaryText"
+                >
+                    {{ primaryText }}
+                </VButton>
             </div>
         </div>
     </div>
@@ -72,11 +95,6 @@ const Dialog = useDialogStore();
     gap: 20px;
     .icon-warning {
         @include size(40px);
-        .warning-img {
-            width: 36px;
-            height: 37px;
-            background-position: -598px -463px;
-        }
     }
     .dialog-text {
         @include font(14);

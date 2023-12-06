@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 
 const props = defineProps({
     type: {
@@ -23,26 +23,54 @@ const props = defineProps({
             return ['primary', 'red'].includes(val);
         }
     },
-    disabled: Boolean
+    title: String,
+    class: String || Object || Array,
+    disabled: Boolean,
+    href: String,
+    focus: Boolean,
+    widthFull: Boolean
 });
 
-/**
- * Based on the type and size props passed in,
- * assign classes to style each corresponding type and size of button.
- */
-const buttonClass = computed(() => ['button', `button-${props.type}`, `button-${props.size}`]);
+const buttonRef = ref(null);
+
+// Khi mounted, nếu prop focus = true, focus button
+onMounted(() => {
+    if (props.focus) buttonRef.value.focus();
+});
+
+// Lưu trữ trạng thái disabled của button
+const isDisabled = computed(() => props.disabled);
 
 /**
- * If the disabled prop is passed in, set the disabled state for the button.
+ * === COMPONENT STYLE ===
  */
-const isDisabled = computed(() => props.disabled);
+const buttonClass = computed(() => [
+    'button',
+    `button-${props.type}`,
+    `button-${props.size}`,
+    { 'button-width-full': props.widthFull },
+    `button-${props.colorScheme}-colorscheme`,
+    props.class
+]);
 </script>
 
 <template>
-    <button :class="buttonClass" :disabled="isDisabled">
-        <slot name="icon"></slot>
-        <slot></slot>
-    </button>
+    <div>
+        <a :href="href" target="_blank">
+            <button
+                :class="buttonClass"
+                :disabled="isDisabled"
+                ref="buttonRef"
+                @click="buttonRef.blur"
+            >
+                <slot name="icon"></slot>
+                <slot></slot>
+            </button>
+        </a>
+        <span class="tooltip" v-if="title">
+            {{ title }}
+        </span>
+    </div>
 </template>
 
 <style scoped lang="scss">
@@ -85,6 +113,14 @@ $--button-icon-pressed-bg-color: rgb(var(--c-green-500));
 $--button-icon-padding-x: 10px;
 $--button-icon-padding-y: 8px;
 
+$--button-red-colorscheme-color: rgb(var(--c-white));
+$--button-red-colorscheme-bg-color: rgb(var(--c-red-500));
+$--button-red-colorscheme-hover-bg-color: rgb(var(--c-red-400));
+$--button-red-colorscheme-pressed-bg-color: rgb(var(--c-red-600), 0.8);
+
+$--tooltip-color: rgb(var(--c-white));
+$--tooltip-bg-color: rgb(var(--c-gray-900));
+
 .button-small {
     height: $--button-small-height;
     padding: $--button-small-padding-y $--button-padding-x;
@@ -106,6 +142,15 @@ $--button-icon-padding-y: 8px;
     padding: $--button-extra-large-padding-y $--button-padding-x;
 }
 
+.button-width-full {
+    width: 100%;
+}
+
+a {
+    display: flex;
+    justify-content: center;
+}
+
 .button {
     display: flex;
     justify-content: center;
@@ -115,12 +160,14 @@ $--button-icon-padding-y: 8px;
     @include font(14);
     font-family: var(--font-family-system);
     font-weight: 500;
-
-    outline: none;
     cursor: pointer;
 
     &:not(.button-icon) {
         min-width: $--button-min-width;
+    }
+
+    &:focus-within {
+        outline: rgb(var(--c-black)) auto 1px;
     }
 }
 
@@ -173,5 +220,39 @@ $--button-icon-padding-y: 8px;
 .button:disabled {
     cursor: not-allowed;
     opacity: 0.56;
+}
+
+.button-red-colorscheme {
+    color: $--button-red-colorscheme-color;
+    background-color: $--button-red-colorscheme-bg-color;
+    border: none;
+    &:hover:not(:disabled) {
+        background-color: $--button-red-colorscheme-hover-bg-color;
+    }
+    &:active:not(:disabled) {
+        background-color: $--button-red-colorscheme-pressed-bg-color;
+    }
+}
+
+/* Style tooltip */
+.tooltip {
+    @include centerAbsolute();
+
+    display: none;
+    top: 52px;
+    z-index: 15;
+
+    padding: 4px;
+    border-radius: 2px;
+
+    @include font(12);
+    text-wrap: nowrap;
+
+    color: $--tooltip-color;
+    background-color: $--tooltip-bg-color;
+}
+
+a:hover + .tooltip {
+    display: flex;
 }
 </style>

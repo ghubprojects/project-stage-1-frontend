@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref, useSlots, watch } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref, useSlots, watch } from 'vue';
 import VIcon from './VIcon.vue';
 
 const props = defineProps({
@@ -14,9 +14,7 @@ const props = defineProps({
         type: String,
         default: 'medium',
         validator(val) {
-            return ['full', 'extra-large', 'large', 'medium', 'small', 'extra-small'].includes(
-                val
-            );
+            return ['full', 'extra-large', 'large', 'medium', 'small', 'extra-small'].includes(val);
         }
     },
     id: {
@@ -26,51 +24,34 @@ const props = defineProps({
     placeholder: {
         type: String
     },
-    disabled: {
-        type: Boolean,
-        default: false
-    },
-    required: {
-        type: Boolean,
-        default: false
-    },
     options: {
         type: Array,
         required: true
-    }
+    },
+    value: {
+        type: String,
+        required: true
+    },
+    required: Boolean,
+    disabled: Boolean,
+    class: String
 });
 
-/**
- * The variable "hasLabel" checks whether a Textfield contains the label or not.
- * If it does, it adds the class 'has-label' to the label tag.
- */
-const slots = useSlots();
-const hasLabel = slots.label;
+const emit = defineEmits(['selectOption']);
 
-/**
- * Based on the size and width props passed in,
- * assign classes to style each corresponding size and width of input.
- */
-const inputClass = computed(() => [
-    `input-${props.size}`,
-    `input-width-${props.width}`,
-    'input-has-icon'
-]);
-
-const dropdownMenuClass = computed(() => {
-    return ['dropdown-menu', direction.value === 'up' && `position-up-${props.size}`];
-});
-
-// show dropdown
+// Biến lưu trữ trạng thái đóng mở dropdown
 const isOpening = ref(false);
 const isShow = ref(false);
 const direction = ref('down');
 
 const dropdownListRef = ref(null);
 
-// khi mở dropdown, lấy tọa độ dưới của dropdown menu và bảng dữ liệu,
-// nếu tọa độ dropdown > tọa độ bảng, hiển thị menu theo hướng lên trên
-// ngược lại, hiển thị menu theo hướng xuống dưới
+/**
+ * Khi mở dropdown, lấy tọa độ dưới của dropdown menu và bảng dữ liệu,
+ * nếu tọa độ dropdown > tọa độ bảng, hiển thị menu theo hướng lên trên
+ * ngược lại, hiển thị menu theo hướng xuống dưới.
+ * Created by: ttanh (20/9/2023)
+ */
 watch([isOpening], () => {
     if (
         dropdownListRef.value.getBoundingClientRect().bottom + 183 >
@@ -82,18 +63,55 @@ watch([isOpening], () => {
     isShow.value = isOpening.value;
 });
 
-const selectedValue = ref(props.options[0]);
+const selectedValue = ref(props.value);
 
 // lưu option khi click vào dropdown menu
 const handleOptionClick = (option) => {
     selectedValue.value = option;
     isOpening.value = false;
     isShow.value = false;
+    emit('selectOption', selectedValue.value);
 };
+
+/**
+ * Ẩn dropdown menu
+ * Created by: ttanh (08/10/2023)
+ */
+const hideDropdownMenu = () => {
+    isOpening.value = false;
+    isShow.value = false;
+};
+
+// khi click ra ngoài document, đóng dropdown options.
+onMounted(() => document.addEventListener('click', hideDropdownMenu));
+
+// khi unmount, loại bỏ sự kiện click khỏi đối tượng document.
+onBeforeUnmount(() => document.removeEventListener('click', hideDropdownMenu));
+
+/**
+ * === COMPONENT STYLE ===
+ */
+
+/**
+ * Biến hasIcon kiểm tra xem Textfield có icon không.
+ * Nếu có, thêm class 'has-icon' cho input tag.
+ */
+const slots = useSlots();
+const hasLabel = slots.label;
+
+const inputClass = computed(() => [
+    `input-${props.size}`,
+    `input-width-${props.width}`,
+    'input-has-icon'
+]);
+
+const dropdownMenuClass = computed(() => {
+    return ['dropdown-menu', direction.value === 'up' && `position-up-${props.size}`];
+});
 </script>
 
 <template>
-    <div class="dropdown-list" ref="dropdownListRef">
+    <div :class="['dropdown-list', props.class]" ref="dropdownListRef" @click.stop>
         <div class="label-group" v-if="hasLabel">
             <label :for="id">
                 <slot name="label"></slot>

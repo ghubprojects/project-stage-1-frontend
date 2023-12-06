@@ -1,22 +1,21 @@
 <script setup>
-import { ref, computed, useSlots } from 'vue';
+import { computed, provide, ref } from 'vue';
 const props = defineProps({
-    disabled: {
-        type: Boolean,
-        default: false
+    width: {
+        type: String,
+        default: 'medium',
+        validator(val) {
+            return ['extra-large', 'large', 'medium', 'small', 'extra-small'].includes(val);
+        }
     },
-    required: {
-        type: Boolean,
-        default: false
+    legend: String,
+    disabled: Boolean,
+    required: Boolean,
+    defaultValue: {
+        type: Number,
+        required: true
     }
 });
-
-/**
- * The variable "hasLegend" checks whether a radiofield contains a legend or not.
- * If it does, it adds the class 'has-legend' to the label tag.
- */
-const slots = useSlots();
-const hasLegend = slots.legend;
 
 // Biến lưu trữ giá trị input.
 const inputValue = ref('');
@@ -31,6 +30,7 @@ const isInvalid = computed(() => {
     return props.pattern && !props.pattern.test(inputValue.value);
 });
 
+// Thông báo lỗi tương ứng với isEmpty / isInvalid
 const errorMessage = computed(() => {
     if (isEmpty.value) {
         return props.errMsgs.isEmpty;
@@ -40,13 +40,16 @@ const errorMessage = computed(() => {
         return '';
     }
 });
+
+// đặt giá trị mặc định cho radio button
+provide('defaultValue', props.defaultValue);
 </script>
 
 <template>
-    <div class="radiofield">
-        <div class="legend-group" v-if="hasLegend">
+    <div :class="['radiofield', `radiofield-width-${width}`]">
+        <div class="legend-group" v-if="legend">
             <legend>
-                <slot name="legend"></slot>
+                {{ legend }}
             </legend>
             <span class="required-mark" v-if="required">&nbsp;*</span>
         </div>
@@ -81,6 +84,17 @@ $--input-error-border-color: rgb(var(--c-red-500));
 $--error-message-color: rgb(var(--c-white));
 $--error-message-bg-color: rgb(var(--c-gray-900));
 
+.radiofield {
+    width: 200px;
+    display: flex;
+    flex-direction: column;
+    & > .input-group {
+        display: flex;
+        gap: 8px;
+        justify-content: space-between;
+    }
+}
+
 .legend-group {
     margin-bottom: 8px;
     legend {
@@ -90,6 +104,10 @@ $--error-message-bg-color: rgb(var(--c-gray-900));
     .required-mark {
         color: $--label-required-mark-color;
     }
+}
+
+.input-group {
+    height: 100%;
 }
 
 /* Style error message */
@@ -122,28 +140,19 @@ $--error-message-bg-color: rgb(var(--c-gray-900));
 }
 
 /* === Width of input === */
-.input-width-full {
-    width: 100%;
-}
-
-.input-width-extra-large {
+.radiofield-width-extra-large {
     width: 250px;
 }
-.input-width-large {
+.radiofield-width-large {
     width: 200px;
 }
-.input-width-medium {
+.radiofield-width-medium {
     width: 180px;
 }
-.input-width-small {
+.radiofield-width-small {
     width: 150px;
 }
-.input-width-extra-small {
+.radiofield-width-extra-small {
     width: 120px;
-}
-/* Input-group */
-.radiofield > .input-group {
-    display: flex;
-    gap: 12px;
 }
 </style>

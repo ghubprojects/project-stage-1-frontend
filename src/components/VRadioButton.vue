@@ -1,4 +1,6 @@
 <script setup>
+import { inject } from 'vue';
+
 defineProps({
     id: {
         type: String,
@@ -12,22 +14,25 @@ defineProps({
         type: Number,
         required: true
     },
-    checked: {
-        type: Boolean
+    label: {
+        type: String,
+        required: true
     },
-    disabled: {
-        type: Boolean,
-        default: false
-    }
+    checked: Boolean,
+    disabled: Boolean
 });
 
 const emit = defineEmits(['checkRadio']);
 
+// khi thay đổi input, emit dữ liệu
 const handleChange = (event) => {
     if (event.target.checked) {
         emit('checkRadio', event.target.value);
     }
 };
+
+// lấy giá trị mặc định cho radio button
+const defaultValue = inject('defaultValue');
 </script>
 
 <template>
@@ -38,13 +43,14 @@ const handleChange = (event) => {
                 :name="name"
                 :id="id"
                 :value="value"
-                :checked="checked"
+                :checked="value === defaultValue || checked"
                 @change="handleChange"
+                ref="inputRef"
             />
             <span class="checkmark"></span>
         </div>
         <label :for="id">
-            <slot name="label"></slot>
+            {{ label }}
         </label>
     </div>
 </template>
@@ -80,6 +86,9 @@ $--error-message-bg-color: rgb(var(--c-gray-900));
 
 .radio-input {
     display: flex;
+    &:focus-within {
+        outline: auto;
+    }
 }
 
 input {
@@ -88,7 +97,6 @@ input {
 
     border-radius: 4px;
     border: 1px solid $--input-border-color;
-    outline: none;
 
     &::placeholder {
         @include font(14);
@@ -166,7 +174,7 @@ label {
 /* Style for label */
 .radio-button label {
     display: inline-block;
-    padding-left: 8px;
+    padding-left: 4px;
     cursor: pointer;
 }
 </style>

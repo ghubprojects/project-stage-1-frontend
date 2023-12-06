@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onBeforeUnmount, onMounted, ref, useSlots, watch } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 
 import {
     addMonths,
@@ -10,10 +10,13 @@ import {
     startOfMonth,
     subMonths
 } from 'date-fns';
-import { vi } from 'date-fns/locale';
+import { enGB, vi } from 'date-fns/locale';
 
-import { VButton, VIcon } from '@/components';
 import { IconArrowLeft, IconArrowRight } from '@/assets/icons';
+import { VButton, VIcon } from '@/components';
+import { FieldResources } from '@/resources';
+import { useDateFormatStore, useLanguageStore } from '@/stores';
+import { DateFormatList, LanguageList } from '@/utils/enum';
 
 const props = defineProps({
     size: {
@@ -34,22 +37,65 @@ const props = defineProps({
         type: String,
         required: true
     },
+    label: String,
     value: String,
     disabled: Boolean,
     required: Boolean,
     class: String,
     title: String,
-    errMsgs: Object
+    showError: Boolean,
+    errMsgs: Object,
+    firstFocus: Boolean
 });
 
-const emit = defineEmits(['update:input']);
+const emit = defineEmits(['update:input', 'addErrorMessage', 'removeErrorMessage']);
 
-// Show label if exists
-const slots = useSlots();
-const hasLabel = slots.label;
+const DateFormat = useDateFormatStore();
+const Language = useLanguageStore();
+
+/**
+ * Khi mounted, nếu field có prop firstFocus, focus và select input text
+ * Created by: ttanh (20/08/2023)
+ * Modified by: ttanh (27/09/2023)
+ */
+const inputRef = ref(null);
+onMounted(() => {
+    if (props.firstFocus) {
+        inputRef.value.focus();
+        inputRef.value.select();
+    }
+});
 
 // Biến lưu trữ giá trị input.
-const inputValue = ref(props.value ? props.value : 'dd/mm/yyyy');
+const inputValue = ref(props.value === '' ? DateFormat.current : props.value);
+
+// Biến lưu trữ ngày đã chọn
+const selectedDate = ref(null);
+
+/**
+ * Chuyển đổi từ input sang selected date
+ * Created by: ttanh (06/10/2023)
+ */
+const convertInputToSelectedDate = () => {
+    const dateArray = inputValue.value.split('/').map(Number);
+    switch (DateFormat.current) {
+        case DateFormatList.DMY:
+            selectedDate.value = new Date(dateArray[2], dateArray[1] - 1, dateArray[0]);
+            break;
+
+        case DateFormatList.MDY:
+            selectedDate.value = new Date(dateArray[2], dateArray[0] - 1, dateArray[1]);
+            break;
+
+        case DateFormatList.YMD:
+            selectedDate.value = new Date(dateArray[0], dateArray[1] - 1, dateArray[2]);
+            break;
+    }
+};
+
+/**
+ * === CHỨC NĂNG VALIDATE INPUT ===
+ */
 
 // Check empty input
 const isEmpty = computed(() =>
@@ -57,64 +103,139 @@ const isEmpty = computed(() =>
 );
 
 // Check invalid input
-const isInvalid = computed(
-    () => String(parse(inputValue.value, 'dd/MM/yyyy', new Date())) === 'Invalid Date'
-);
-
-/**
- * Based on the size and width props passed in,
- * assign classes to style each corresponding size and width of input.
- */
-const showErrorInput = ref(false);
-const inputClass = computed(() => {
-    return [
-        `input-${props.size}`,
-        `input-width-${props.width}`,
-        { 'input-error': showErrorInput.value && (isEmpty.value || isInvalid.value) }
-    ];
+const isInvalid = computed(() => {
+    if (inputValue.value === DateFormat.current) return false;
+    return (
+        String(parse(inputValue.value, DateFormat.current.replace(/mm/g, 'MM'), new Date())) ===
+        'Invalid Date'
+    );
 });
 
+// Check date is greater than now
+const isGreaterNow = computed(() => {
+    if (inputValue.value === DateFormat.current) return false;
+
+    convertInputToSelectedDate();
+
+    return selectedDate.value.getTime() > new Date().getTime();
+});
+
+// Thông báo lỗi tương ứng với isEmpty / isInvalid / isGreaterNow
 const errorMessage = computed(() => {
     if (isEmpty.value) {
         return props.errMsgs.isEmpty;
     } else if (isInvalid.value) {
         return props.errMsgs.isInvalid;
+    } else if (isGreaterNow.value) {
+        return props.errMsgs.isGreaterNow;
     } else {
         return '';
     }
 });
 
+const showErrorInput = ref(props.showError);
+const showErrorMessage = ref(props.showError);
+
+/**
+ * Cập nhật thông báo lỗi validate
+ */
+const updateErrorMessage = () => {
+    if (props.errMsgs) {
+        emit('removeErrorMessage', props.id);
+        if (errorMessage.value)
+            emit('addErrorMessage', { id: props.id, message: errorMessage.value, focus: false });
+    }
+};
+
 /**
  * Khi thay đổi giá trị input,
  * hiển thị những input bị lỗi (viền đỏ) nếu input trống hoặc không hợp lệ.
+ * Created by: ttanh (03/10/2023)
  */
 const handleChange = () => {
-    showErrorInput.value = true;
     emit('update:input', inputValue.value);
+
+    convertInputToSelectedDate();
+
+    if (isEmpty.value || isInvalid.value || isGreaterNow.value) {
+        showErrorInput.value = true;
+        showErrorMessage.value = true;
+    }
+
+    updateErrorMessage();
 };
+
+/**
+ * Khi mounted, reset thông báo lỗi
+ * Created by: ttanh (03/10/2023)
+ */
+onMounted(() => {
+    updateErrorMessage();
+});
 
 /**
  * Khi isEmpty hoặc isInvalid thay đổi, cập nhật lại giá trị showErrorMessage tương ứng.
  */
-const showErrorMessage = ref(false);
-watch([isEmpty, isInvalid, showErrorMessage], () => {
-    showErrorMessage.value = isEmpty.value || isInvalid.value;
+watch([isEmpty, isInvalid, isGreaterNow], () => {
+    showErrorMessage.value = isEmpty.value || isInvalid.value || isGreaterNow.value;
 });
 
 /**
- * === XỬ LÝ DATE PICKER ===
+ * === XỬ LÝ ĐÓNG MỞ DATE PICKER ===
  */
 const showDatePicker = ref(false);
-const openDatePicker = () => (showDatePicker.value = true);
+
+const openDatePicker = () => {
+    showDatePicker.value = true;
+    console.table({
+        inputValue: inputValue.value,
+        selectedDate: selectedDate.value,
+        currentDate: currentDate.value
+    });
+};
+
 const closeDatePicker = () => (showDatePicker.value = false);
 
+const toggleDatePicker = () => (showDatePicker.value = !showDatePicker.value);
+
+// Reference to input, icon calendar and date picker element
+const iconCalendarRef = ref(null);
+const datePickerRef = ref(null);
+
+// Event listener for clicks outside the date picker
+const handleClickOutside = (event) => {
+    if (
+        datePickerRef.value &&
+        !datePickerRef.value.contains(event.target) &&
+        event.target !== inputRef.value && // Exclude the input field
+        event.target !== iconCalendarRef.value && // Exclude the icon calendar
+        event.target !== iconCalendarRef.value.firstChild // Exclude the icon calendar img
+    )
+        closeDatePicker();
+};
+
+// Add the click event listener when the component is mounted
+onMounted(() => document.addEventListener('click', handleClickOutside));
+
+// Remove the click event listener when the component is unmounted
+onBeforeUnmount(() => document.removeEventListener('click', handleClickOutside));
+
+/**
+ * === XỬ LÝ LOGIC DATE PICKER ===
+ */
 // Gán value từ props vào biến currentDate
 const currentDate = ref(
-    props.value ? parse(props.value, 'dd/MM/yyyy', new Date()) : new Date()
+    props.value
+        ? parse(props.value, DateFormat.current.replace(/mm/g, 'MM'), new Date())
+        : new Date()
 );
 
 // Định dạng tiêu đề tháng (ví dụ: Tháng 8, 2023)
-const formattedMonth = computed(() => format(currentDate.value, 'MMMM, yyyy', { locale: vi }));
+const formattedMonth = computed(() =>
+    format(currentDate.value, 'MMMM, yyyy', {
+        locale: Language.current === LanguageList.VI ? vi : enGB
+    })
+);
 
 // Thay đổi đến tháng trước hoặc tháng tiếp theo khi click vào icon chuyển tháng
 const changeMonth = (amount) => {
@@ -130,32 +251,52 @@ const daysInMonth = computed(() =>
     }).map((date) => date.getDate())
 );
 
-// Biến lưu trữ ngày đã chọn
-const selectedDate = ref(null);
-
 /**
  * Khi người dùng chọn ngày:
  * 1. Gán currentDate vào selectedDate.
  * 2. Gán selectedDate vào inputDate để hiển thị trong DateField.
  * 3. Đóng date picker.
+ * Nếu không có day, chọn mặc định Today
+ * Created by: ttanh (29/09/2023)
+ * Updated by: ttanh (08/10/2023)
  */
-const handleDayClick = (day) => {
-    selectedDate.value = new Date(
-        currentDate.value.getFullYear(),
-        currentDate.value.getMonth(),
-        day
-    );
-    inputValue.value = format(selectedDate.value, 'dd/MM/yyyy', { locale: vi });
+const handleSelectDay = (event, day) => {
+    event.stopPropagation();
+    console.log(day);
+    if (day)
+        selectedDate.value = new Date(
+            currentDate.value.getFullYear(),
+            currentDate.value.getMonth(),
+            day
+        );
+    else selectedDate.value = new Date();
+
+    inputValue.value = format(selectedDate.value, DateFormat.current.replace(/mm/g, 'MM'), {
+        locale: vi
+    });
+
+    currentDate.value = selectedDate.value;
+
     emit('update:input', inputValue.value);
+
+    if (isEmpty.value || isInvalid.value || isGreaterNow.value) {
+        showErrorInput.value = true;
+        showErrorMessage.value = true;
+    }
+
+    updateErrorMessage();
+
     closeDatePicker();
+    inputRef.value.focus();
+
+    console.table({
+        inputValue: inputValue.value,
+        selectedDate: selectedDate.value,
+        currentDate: currentDate.value
+    });
 };
 
-// Khi click button 'Hôm nay', gán ngày hiện tại vào inputValue
-const handlePickToday = () => {
-    inputValue.value = format(new Date(), 'dd/MM/yyyy', { locale: vi });
-    emit('update:input', inputValue.value);
-    closeDatePicker();
-};
+watch(selectedDate, () => (currentDate.value = selectedDate.value));
 
 //regex ký tự khác số
 const nonDigitsRegex = /[^0-9]/g;
@@ -176,64 +317,63 @@ const handleKeyup = (event) => {
     const lengthString = newString.value.length;
     if (lengthString > 8) newString.value = newString.value.slice(1);
 
-    if (event.key === 'Backspace')
-        newString.value = newString.value.slice(0, lengthString - 1);
+    if (event.key === 'Backspace') newString.value = newString.value.slice(0, lengthString - 1);
 
     inputValue.value = handleDateString(newString.value);
 };
 
-// Khi độ dài input là 8 chữ số, ngăn cản event mặc định khi backscape
-// và xử lý bằng logic
+// Khi độ dài input là 8 chữ số, ngăn cản event mặc định khi backscape và xử lý bằng logic
 const handlePreventDelete = (event) => {
     if (event.target.value.replace(nonDigitsRegex, '').length === 8) event.preventDefault();
 };
 
 /**
- * Định dạng chuỗi chữ số thành 'dd/mm/yyyy'
+ * Định dạng chuỗi chữ số thành format tương ứng
  * và thay thế tất cả vị trí chưa nhập giá trị bằng chữ cái tương ứng.
  */
 const handleDateString = (date) => {
-    const placeholder = 'ddmmyyyy';
+    // loại bỏ dấu / giữa các ký tự
+    const placeholder = DateFormat.current.replace(/\//g, '');
+
     const string = date.replace(nonDigitsRegex, '');
     const result = Array.from(placeholder)
         .map((char, index) => string[index] ?? char)
         .join('');
-    return `${result.slice(0, 2)}/${result.slice(2, 4)}/${result.slice(4)}`;
+
+    switch (DateFormat.current) {
+        case DateFormatList.DMY:
+        case DateFormatList.MDY:
+            return `${result.slice(0, 2)}/${result.slice(2, 4)}/${result.slice(4)}`;
+        case DateFormatList.YMD:
+            return `${result.slice(0, 4)}/${result.slice(4, 6)}/${result.slice(6)}`;
+    }
 };
 
-// Reference to input, icon calendar and date picker element
-const inputRef = ref(null);
-const iconCalendarRef = ref(null);
-const datePickerRef = ref(null);
+/**
+ * === COMPONENT STYLE ===
+ */
 
-// Event listener for clicks outside the date picker
-const handleClickOutside = (event) => {
-    if (
-        datePickerRef.value &&
-        !datePickerRef.value.contains(event.target) &&
-        event.target !== inputRef.value && // Exclude the input field
-        event.target !== iconCalendarRef.value && // Exclude the icon calendar
-        event.target !== iconCalendarRef.value.firstChild // Exclude the icon calendar img
-    )
-        closeDatePicker();
-};
-
-// Add the click event listener when the component is mounted
-onMounted(() => {
-    document.addEventListener('click', handleClickOutside);
-});
-
-// Remove the click event listener when the component is unmounted
-onBeforeUnmount(() => {
-    document.removeEventListener('click', handleClickOutside);
+/**
+ * Based on the size and width props passed in,
+ * assign classes to style each corresponding size and width of input.
+ */
+const inputClass = computed(() => {
+    return [
+        `input-${props.size}`,
+        `input-width-${props.width}`,
+        {
+            'input-error':
+                showErrorInput.value && (isEmpty.value || isInvalid.value || isGreaterNow.value)
+        }
+    ];
 });
 </script>
 
 <template>
-    <div class="date-field">
-        <div class="label-group" v-if="hasLabel">
+    <div class="date-field" @keydown.enter="toggleDatePicker">
+        <div class="label-group" v-if="props.label">
             <label :for="id" :title="title">
-                <slot name="label"></slot>
+                {{ props.label }}
             </label>
             <span class="required-mark" v-if="required">&nbsp;*</span>
         </div>
@@ -255,7 +395,7 @@ onBeforeUnmount(() => {
             <div v-if="showDatePicker" class="date-picker" ref="datePickerRef">
                 <div class="calendar">
                     <div class="header">
-                        <div class="month">
+                        <div class="month" @click="showMonthYearPicker">
                             <span class="month-text">{{ formattedMonth }}</span>
                             <span class="icon-arrow-down"><VIcon class="arrow-down" /></span>
                         </div>
@@ -278,8 +418,8 @@ onBeforeUnmount(() => {
                         <div
                             v-for="day in daysInMonth"
                             :key="day"
-                            class="day"
-                            @click="handleDayClick(day)"
+                            :class="['day', { 'current-day': currentDate.getDate() === day }]"
+                            @click="handleSelectDay($event, day)"
                         >
                             {{ day }}
                         </div>
@@ -288,23 +428,20 @@ onBeforeUnmount(() => {
                 <VButton
                     type="secondary"
                     size="extra-large"
+                    width-full
                     class="pick-today-button"
-                    @click="handlePickToday"
+                    @click="handleSelectDay($event)"
+                    @keydown.enter="handleSelectDay($event)"
+                    @keydown.tab="closeDatePicker"
                 >
-                    Hôm nay
+                    {{ FieldResources[Language.current].TodayButtonText }}
                 </VButton>
             </div>
         </div>
-        <span
-            class="error-message"
-            v-if="showErrorMessage"
-            @mouseenter="showErrorMessage = true"
-            @mouseleave="showErrorMessage = false"
-        >
+        <span class="error-message" v-if="showErrorMessage">
             {{ errorMessage }}
         </span>
     </div>
-    <div></div>
 </template>
 
 <style lang="scss" scoped>
@@ -414,12 +551,14 @@ $--change-month-button-hover-bg-color: rgb(var(--c-gray-200));
     left: 16px;
     bottom: -18px;
     display: none;
+    z-index: 5;
 
     @include font(12);
     padding: 4px;
     border-radius: 2px;
     color: $--error-message-color;
     background-color: $--error-message-bg-color;
+    text-wrap: nowrap;
 
     .input-group:has(.input-error:hover) + & {
         display: flex;
@@ -534,6 +673,10 @@ $--change-month-button-hover-bg-color: rgb(var(--c-gray-200));
             color: rgb(var(--c-white));
             background-color: rgb(var(--c-primary));
         }
+    }
+    .current-day {
+        color: rgb(var(--c-white));
+        background-color: rgb(var(--c-primary));
     }
 }
 </style>

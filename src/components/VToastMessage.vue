@@ -1,45 +1,52 @@
 <script setup>
 import { computed } from 'vue';
 
-import { useToastMessageStore } from '@/stores/toastMessage';
-import { ToastMessageType } from '@/utils/enums';
+import { IconError, IconInfo, IconSuccess, IconWarning } from '@/assets/icons/';
 import VIcon from './VIcon.vue';
+
+import { useLanguageStore, useToastMessageStore } from '@/stores';
+import { ToastMessageType } from '@/utils/enum';
+import { ToastMessageResources } from '@/resources';
 
 const props = defineProps({
     type: {
-        type: Symbol,
+        type: String,
         required: true,
         default: ToastMessageType.Warning
     }
 });
 
+const Language = useLanguageStore();
 const ToastMessage = useToastMessageStore();
 
+/**
+ * Mảng lưu trữ icon, title, titleClass tương ứng với mỗi type (success, error, warning, info)
+ */
 const typeMappings = {
     [ToastMessageType.Success]: {
-        iconImgClass: 'success-img',
-        title: 'Thành công!',
+        icon: IconSuccess,
+        title: ToastMessageResources[Language.current].Title.success,
         titleClass: ['title', 'title-success']
     },
     [ToastMessageType.Error]: {
-        iconImgClass: 'error-img',
-        title: 'Lỗi!',
+        icon: IconError,
+        title: ToastMessageResources[Language.current].Title.error,
         titleClass: ['title', 'title-error']
     },
     [ToastMessageType.Warning]: {
-        iconImgClass: 'warning-img',
-        title: 'Cảnh báo!',
+        icon: IconWarning,
+        title: ToastMessageResources[Language.current].Title.warning,
         titleClass: ['title', 'title-warning']
     },
     [ToastMessageType.Info]: {
-        iconImgClass: 'info-img',
-        title: 'Thông tin!',
+        icon: IconInfo,
+        title: ToastMessageResources[Language.current].Title.info,
         titleClass: ['title', 'title-info']
     }
 };
 
 const typeMapping = typeMappings[props.type] || typeMappings[ToastMessageType.Warning];
-const iconImgClass = computed(() => typeMapping.iconImgClass);
+const icon = computed(() => typeMapping.icon);
 const title = computed(() => typeMapping.title);
 const titleClass = computed(() => typeMapping.titleClass);
 </script>
@@ -48,7 +55,7 @@ const titleClass = computed(() => typeMapping.titleClass);
     <div class="toast-message">
         <div class="content">
             <div class="message-icon">
-                <VIcon :class="iconImgClass" />
+                <component :is="icon" class="icon" />
             </div>
             <div :class="titleClass">{{ title }}&nbsp;</div>
             <div class="dialog-text">
@@ -91,44 +98,24 @@ const titleClass = computed(() => typeMapping.titleClass);
 .title {
     font-weight: 500;
     &.title-success {
-        color: rgb(var(--c-primary));
+        color: rgb(var(--c-toast-msg-success));
     }
     &.title-error {
-        color: #de3618;
+        color: var(--c-toast-msg-error);
     }
     &.title-warning {
-        color: #f49342;
+        color: var(--c-toast-msg-warning);
     }
     &.title-info {
-        color: #009eeb;
+        color: var(--c-toast-msg-info);
     }
 }
 
 .message-icon {
-    @include size(24px);
+    display: flex;
     margin-right: 8px;
-    & > * {
-        transform: translate(-50%, -50%) scale(calc(24 / 36));
-    }
-    .success-img {
-        width: 36px;
-        height: 36px;
-        background-position: -990px -462px;
-    }
-    .error-img {
-        width: 36px;
-        height: 36px;
-        background-position: -752px -462px;
-    }
-    .warning-img {
-        width: 36px;
-        height: 37px;
-        background-position: -598px -463px;
-    }
-    .info-img {
-        width: 36px;
-        height: 36px;
-        background-position: -832px -462px;
+    .icon {
+        @include size(24px);
     }
 }
 

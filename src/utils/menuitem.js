@@ -13,57 +13,59 @@ import {
     IconTax,
     IconTools,
 } from '@/assets/icons';
+import { MenuItem } from './enum';
+
 export const menuItemList = [
     {
         icon: IconDashBoard,
-        title: 'Tổng quan',
+        title: [MenuItem.DashBoard],
     },
     {
         icon: IconCash,
-        title: 'Tiền mặt',
+        title: [MenuItem.Cash],
     },
     {
         icon: IconBank,
-        title: 'Tiền gửi',
+        title: [MenuItem.Bank],
     },
     {
         icon: IconBag,
-        title: 'Mua hàng',
+        title: [MenuItem.Bag],
     },
     {
         icon: IconCart,
-        title: 'Bán hàng',
+        title: [MenuItem.Cart],
     },
     {
         icon: IconForm,
-        title: 'Quản lý hóa đơn',
+        title: [MenuItem.Form],
     },
     {
         icon: IconStock,
-        title: 'Kho',
+        title: [MenuItem.Stock]
     },
     {
         icon: IconTools,
-        title: 'Công cụ dụng cụ',
+        title: [MenuItem.Tools],
     },
     {
         icon: IconFixedAssets,
-        title: 'Tài sản cố định',
+        title: [MenuItem.FixedAssets],
     },
     {
         icon: IconSalary,
-        title: 'Tiền lương',
+        title: [MenuItem.Salary],
     },
     {
         icon: IconTax,
-        title: 'Thuế',
+        title: [MenuItem.Tax]
     },
     {
         icon: IconPrice,
-        title: 'Giá thành',
+        title: [MenuItem.Price],
     },
     {
         icon: IconBook,
-        title: 'Tổng hợp',
+        title: [MenuItem.Book],
     },
 ];

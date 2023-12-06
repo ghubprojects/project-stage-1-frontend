@@ -1,5 +1,5 @@
 <script setup>
-const props = defineProps({
+defineProps({
     id: String,
     label: String,
     checked: Boolean
@@ -9,7 +9,7 @@ const props = defineProps({
 <template>
     <div class="checkbox">
         <div class="checkbox-input">
-            <input type="checkbox" :id="id" :checked="props.checked" />
+            <input type="checkbox" :id="id" :checked="checked" />
             <span class="checkmark"></span>
         </div>
         <label :for="id" v-if="label">{{ label }}</label>
@@ -23,6 +23,7 @@ const props = defineProps({
     position: relative;
     display: flex;
     align-items: center;
+    justify-content: center;
 }
 
 /* Styles for checkbox-input */
@@ -36,7 +37,7 @@ const props = defineProps({
     margin: 0;
     opacity: 0;
 
-    @include size(18px);
+    @include size(19px);
     z-index: 3;
     cursor: pointer;
 }
@@ -76,6 +77,7 @@ const props = defineProps({
     position: relative;
     padding-left: 8px;
     cursor: pointer;
+    -webkit-user-select: none;
     user-select: none;
 }
 </style>

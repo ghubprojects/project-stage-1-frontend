@@ -2,9 +2,15 @@
 import { computed } from 'vue';
 
 const props = defineProps({
-    class: { type: String, required: true }
+    class: {
+        type: String,
+        required: true
+    }
 });
 
+/**
+ * === COMPONENT STYLE ===
+ */
 const iconClass = computed(() => ['icon', props.class]);
 </script>
 

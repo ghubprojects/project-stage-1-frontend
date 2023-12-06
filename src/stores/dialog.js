@@ -1,19 +1,20 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 
+/**
+ * Quản lý thông báo Dialog
+ */
 export const useDialogStore = defineStore('dialogState', () => {
-    const init = { name: '', }
+    const current = ref('')
 
-    const current = ref(init)
-
-    // hiển thị dialog
+    // hiển thị dialog theo name
     const show = (name) => {
-        if (name) current.value.name = name
+        if (name) current.value = name
     }
 
     // ẩn dialog
     const hide = () => {
-        current.value = init
+        current.value = ''
     };
 
     return {
